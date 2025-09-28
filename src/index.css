@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+}
+
+/* Фильтр для обесцвечивания элементов */
+.main-engine-container {
+  filter: saturate(0);
+}
+
+/* Стили для canvas элементов внутри ymaps3x0--main-engine-container */
+.ymaps3x0--main-engine-container canvas {
+  filter: saturate(0);
+}
+
+/* Альтернативный селектор для более специфичного применения */
+[class*="ymaps3x0--main-engine-container"] canvas {
+  filter: saturate(0);
+}
+
+/* Если нужно применить к любому canvas внутри любого контейнера с ymaps3x0 */
+[class*="ymaps3x0"] canvas {
+  filter: saturate(0);
+}
