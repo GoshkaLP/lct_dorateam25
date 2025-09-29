@@ -1,1 +1,0 @@
-# lct_dorateam25

@@ -1,0 +1,49 @@
+.message-popup {
+  padding: 0 30px;
+  box-sizing: border-box;
+  position: absolute;
+  background-color: white;
+  z-index: 5;
+  width: 280px;
+  height: 116px;
+  text-align: center;
+  border-radius: 15px;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.10);
+}
+
+.message-popup_hidden {
+  display: none;
+}
+
+.message-popup_translated {
+  transform: translate(-140px, 0);
+}
+
+.message-popup__close-button {
+  border: none;
+  background-color: transparent;
+  width: 12px;
+  aspect-ratio: 1/1;
+  position: absolute;
+  z-index: 6;
+  top: 14px;
+  right: 14px;
+  background-image: url('../../images/message-close-button.svg');
+  cursor: pointer;
+}
+
+.message-popup__title {
+  margin: 0;
+  padding: 27px 0 0;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.message-popup__text {
+  margin: 0;
+  padding: 5px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+}
