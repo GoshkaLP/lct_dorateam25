@@ -1,43 +1,52 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('./vendor/normalize.css');
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import url('./vendor/fonts.css');
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+.sr-only {
+  display: none;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
 }
 
-html, body, #root {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: inherit;
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+  background-color: transparent;
+  border-radius: 14px;
+  border: 1px solid #EFEFEF;
 }
 
-/* Фильтр для обесцвечивания элементов */
-.main-engine-container {
-  filter: saturate(0);
+::-webkit-scrollbar-thumb {
+  background-color: #CACACA;
+  border-radius: 24px;
 }
 
-/* Стили для canvas элементов внутри ymaps3x0--main-engine-container */
-.ymaps3x0--main-engine-container canvas {
-  filter: saturate(0);
+::-webkit-scrollbar-thumb:hover {
+  background-color: #848484;
 }
 
-/* Альтернативный селектор для более специфичного применения */
-[class*="ymaps3x0--main-engine-container"] canvas {
-  filter: saturate(0);
+/* Стрелки */
+
+::-webkit-scrollbar-button:vertical:start:decrement {
+  background: none;
 }
 
-/* Если нужно применить к любому canvas внутри любого контейнера с ymaps3x0 */
-[class*="ymaps3x0"] canvas {
-  filter: saturate(0);
+::-webkit-scrollbar-button:vertical:end:increment {
+  background: none;
+}
+
+::-webkit-scrollbar-button:horizontal:start:decrement {
+  background: none;
+}
+
+::-webkit-scrollbar-button:horizontal:end:increment {
+  background: none;
 }

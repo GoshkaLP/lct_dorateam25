@@ -1,0 +1,141 @@
+.map-container {
+  height: 100px;
+  width: 100vw;
+}
+
+/* Add this CSS to your stylesheet or component */
+
+.custom-marker {
+  background: rgba(112, 54, 190, 1);
+  border-radius: 50%;
+  color: #fff; /* Text color */
+  text-align: center;
+  font-weight: bold;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.selected-marker {
+  background: rgba(235, 84, 37, 1);
+}
+
+/*.custom-marker:hover {*/
+/*  background-color: #0056b3; !* Darker blue on hover *!*/
+/*}*/
+
+.marker-content {
+  font-size: 14px;
+}
+
+.svg_containerHex {
+  cursor: pointer;
+  display: flex;
+  z-index: 100;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 1);
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+}
+
+.svg_containerPolygon {
+  cursor: pointer;
+  display: flex;
+  z-index: 100;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 1);
+  position: absolute;
+  bottom: 0;
+  left: 53%;
+  right: 50%;
+}
+
+.button-container {
+  display: flex;
+  column-gap: 4px;
+  justify-content: center;
+  position: absolute;
+  bottom: 20px;
+  left: calc(50% - 38px);
+  z-index: 11;
+}
+
+.map__button {
+  min-width: 36px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: white;
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.07);
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transform: background-color .3s ease-in-out;
+}
+
+.map__button:hover {
+  background-color: #f5f5f5;
+}
+
+.map__button:active {
+  background-color: #ebebeb;
+}
+
+.map__button_selected {
+  background-color: #FBB099;
+}
+
+.map__button_selected:hover {
+  background-color: #F27E59;
+}
+
+.map__button_left {
+  border-radius: 10px 0px 0px 10px;
+  background-image: url("../../images/hex-button.png");
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.map__button_right {
+  border-radius: 0px 10px 10px 0px;
+  background-image: url("../../images/regions-button.png");
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.map__button_left_selected {
+  background-image: url("../../images/hex-button-colored.png");
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.map__button_right_selected {
+  background-image: url("../../images/regions-button-colored.png");
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+.leaflet-right .leaflet-control {
+  margin-top: 100px !important;
+}
+.leaflet-left .leaflet-control {
+  margin-top: 100px !important;
+}
+
+/*.map_polygonButton {*/
+/*  position: absolute;*/
+/*  bottom: 0;*/
+/*  left: 50%;*/
+/*  right: 50%;*/
+/*}*/
+
+/*.map_hexButton {*/
+/*  position: absolute;*/
+/*  bottom: 0;*/
+/*  left: 50%;*/
+/*  right: 50%;*/
+/*}*/

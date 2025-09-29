@@ -1,0 +1,56 @@
+.train-route {
+  height: calc(100% - 65px);
+  margin: 35px 20px 30px;
+  overflow: hidden;
+}
+
+.train-route__title {
+  margin: 0;
+  padding: 0 0 15px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 29px;
+}
+
+.train-route__way {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 22px;
+}
+
+.train-route__way-point {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 15px;
+}
+
+.train-route__arrow {
+  width: 81px;
+  aspect-ratio: 81/5;
+}
+
+.train-route-separator {
+  width: 100%;
+  height: 5px;
+  border-radius: 2px;
+  background-color: #F27E59;
+  margin: 0 0 20px;
+}
+
+.train-route__list-container {
+  height: 75.5%;
+  overflow-y: scroll;
+}
+
+.train-route__list {
+  margin: 0;
+  padding: 0 0 10px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
