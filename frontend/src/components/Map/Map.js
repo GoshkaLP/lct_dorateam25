@@ -11,6 +11,7 @@ import {
   Popup,
   useMapEvents,
   FeatureGroup,
+  Polyline,
 } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 
@@ -210,6 +211,10 @@ function ReactControlExample({
             <Popup>Точка {idx + 1}</Popup>
           </Marker>
         ))}
+        {/* Линия между двумя первыми точками */}
+        {points.length >= 2 && (
+          <Polyline positions={[points[0], points[1]]} color="blue" />
+        )}
       </MapContainer>
 
       {/*<div className="button-container">*/}
