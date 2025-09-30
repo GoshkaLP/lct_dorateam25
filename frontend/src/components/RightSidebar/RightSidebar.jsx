@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import CallOutlinedIcon from "@mui/icons-material/CallOutlined";
-import { IconButton } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import Alert from "@mui/material/Alert";
@@ -190,12 +190,14 @@ const RightSidebar = () => {
         <ol>
           <li>
             <div className={style["aprove-wrapper"]}>
-              <Button
-                startIcon={<ReportProblemIcon />}
+              <IconButton
+                aria-label="report"
                 variant="contained"
                 color="warning"
                 onClick={() => handleOpenModal("action", true)}
-              />
+              >
+                <ReportProblemIcon />
+              </IconButton>
               ИТП-Западный
               <Button
                 startIcon={<ThumbDownOffAltIcon />}
