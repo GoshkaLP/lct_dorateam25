@@ -7,6 +7,7 @@ export const ROUTES = {
   HISTORY: "/history",
   ACCOUNT: "/account",
 };
+
 export const MAIN_HEADER_MENU = [
   { name: "Мониторинг", path: ROUTES.MAIN, element: <Main /> },
   { name: "Отчёты", path: ROUTES.REPORTS, element: <Reports /> },
