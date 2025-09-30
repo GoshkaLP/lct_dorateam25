@@ -1,0 +1,64 @@
+.authpage {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  justify-content: center;
+  align-items: center;
+  background: #310f53;
+}
+.fade-unmount-exit {
+  animation: fadeOut forwards ease;
+}
+
+.lottie-wrapper {
+  width: 256px;
+  height: 128px;
+}
+
+.pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 256px;
+  height: 256px;
+  background: rgb(49, 15, 83);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  text-align: center;
+  line-height: 100px;
+  font-family: sans-serif;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.pulse-animated {
+  animation: animate-pulse 3s linear infinite;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes animate-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(35, 35, 253, 0.7), 0 0 0 0 rgba(35, 35, 253, 0.7);
+  }
+  40% {
+    box-shadow: 0 0 0 50px rgba(35, 35, 253, 0), 0 0 0 0 rgba(35, 35, 253, 0.7);
+  }
+  80% {
+    box-shadow: 0 0 0 50px rgba(35, 35, 253, 0), 0 0 0 30px rgba(35, 35, 253, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(35, 35, 253, 0), 0 0 0 30px rgba(35, 35, 253, 0);
+  }
+}
