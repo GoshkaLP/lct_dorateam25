@@ -4,7 +4,7 @@ import "./App.css";
 import { DataProvider } from "../Filters/components/DataContext/DataContext";
 import Header from "../Header/Header";
 import { MAIN_HEADER_MENU } from "../../const/const";
-import { AuthPage } from "../../pages/index";
+import { AuthPage } from "../../pages";
 import { useUserProfile } from "../../store/UserProfile";
 
 function App() {
