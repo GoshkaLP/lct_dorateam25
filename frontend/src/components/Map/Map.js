@@ -128,6 +128,7 @@ function ReactControlExample({
   const dataKey = useForceUpdateGeoJson(data);
   const [isOpenHex, setIsOpenHex] = useState(false);
   const [isOpenPolygon, setIsOpenPolygon] = useState(true);
+  const [rectangle, setRectangle] = useState(null);
 
   const style = (feature) => {
     return {
@@ -160,6 +161,11 @@ function ReactControlExample({
     if (layerType === "rectangle") {
       const bounds = layer.getBounds();
       console.log("Rectangle created with bounds:", bounds);
+    }
+    if (e.layerType === "rectangle") {
+      setRectangle(null);
+      setRectangle(e.layer.getBounds());
+      e.layer.remove();
     }
   };
 
@@ -214,6 +220,9 @@ function ReactControlExample({
         {/* Линия между двумя первыми точками */}
         {points.length >= 2 && (
           <Polyline positions={[points[0], points[1]]} color="blue" />
+        )}
+        {rectangle && (
+          <Rectangle bounds={rectangle} pathOptions={{ color: "blue" }} />
         )}
       </MapContainer>
 
