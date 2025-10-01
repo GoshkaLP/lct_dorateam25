@@ -23,6 +23,8 @@ import Train from "../Train/Train";
 import useForceUpdateGeoJson from "./useForceUpdateGeoJson";
 import HoverCard from "../MapHoverCard/HoverCard";
 import ReactDOMServer from "react-dom/server";
+import ITP_yellow from "../../images/maps-markers/ITP_yellow.svg";
+import L from "leaflet";
 
 const POSITION_CLASSES = {
   bottomleft: "leaflet-bottom leaflet-left",
@@ -130,6 +132,12 @@ function ReactControlExample({
   const [isOpenPolygon, setIsOpenPolygon] = useState(true);
   const [rectangle, setRectangle] = useState(null);
 
+  const customIcon = new L.Icon({
+    iconUrl: ITP_yellow,
+    iconSize: [32, 32], // размер иконки
+    iconAnchor: [16, 32], // точка привязки
+    popupAnchor: [0, -32], // точка для popup
+  });
   const style = (feature) => {
     return {
       fillColor: feature.properties.color,
@@ -213,7 +221,7 @@ function ReactControlExample({
                     return <Train key={train.train_index} train={train} onClick={handleTrainClick} onOutsideClick={handleMapClick} />
                 })} */}
         {points.map((coords, idx) => (
-          <Marker key={idx} position={coords}>
+          <Marker key={idx} position={coords} icon={customIcon}>
             <Popup>Точка {idx + 1}</Popup>
           </Marker>
         ))}
