@@ -1,5 +1,4 @@
 export const getOptionsAndMapAreas = (data) => {
-  console.log("🚀 ~ getOptionsAndMap ~ data:", data?.data?.features);
   const options = [];
   const map = new Map();
   data?.data?.features?.forEach((item) => {
@@ -14,7 +13,6 @@ export const getOptionsAndMapAreas = (data) => {
 };
 
 export const getOptionsAndMap = (data) => {
-  console.log("🚀 ~ getOptionsAndMap ~ data:", data?.data?.features);
   const options = [];
   const map = new Map();
   data?.data?.features?.forEach((item) => {

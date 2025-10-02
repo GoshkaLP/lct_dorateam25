@@ -1,14 +1,22 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const DataContext = createContext();
 
 export function DataProvider({ children }) {
   const [testData, setTestData] = useState(null);
   const [apiVersion, setApiVersion] = useState(null);
+  const [regions, setRegions] = useState([]);
 
   return (
     <DataContext.Provider
-      value={{ testData, setTestData, apiVersion, setApiVersion }}
+      value={{
+        testData,
+        setTestData,
+        apiVersion,
+        setApiVersion,
+        regions,
+        setRegions,
+      }}
     >
       {children}
     </DataContext.Provider>
