@@ -7,7 +7,7 @@ import { useUserProfile } from "../../store/UserProfile";
 import { useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
-  const { setIsAuth, isAuth } = useUserProfile();
+  const { handleAuthChange, isAuth } = useUserProfile();
   const navigate = useNavigate();
   const [showLottie, setShowLottie] = useState(false);
   const [wrapperCn, setWrapperCn] = useState(style.authpage);
@@ -25,7 +25,7 @@ const AuthPage = () => {
     setAvatarAnimDuration("500ms");
     setTimeout(() => {
       navigate("/", { replace: true });
-      setIsAuth(true);
+      handleAuthChange(true);
     }, 4000);
   };
 

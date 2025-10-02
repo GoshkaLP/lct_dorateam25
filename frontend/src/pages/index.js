@@ -3,3 +3,4 @@ export { default as History } from "./History/index";
 export { default as Main } from "./Main/index";
 export { default as Account } from "./Account/index";
 export { default as AuthPage } from "./AuthPage/index";
+export { default as Favorite } from "./Favorite/index";
