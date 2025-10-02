@@ -71,7 +71,9 @@ const Main = () => {
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
-
+  useEffect(() => {
+    console.log("🚀 ~ Main ~ regions:", regions);
+  }, [regions]);
   return (
     <main style={{ position: "relative" }}>
       <MainSection
