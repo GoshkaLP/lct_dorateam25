@@ -5,6 +5,7 @@
 
 ### Рабочий прототип
 [Ссылка](http://5.129.195.176/)
+![image](imgs/app.jpeg)
 
 ### Архитектура решения
 ![image](imgs/architecture.jpeg)
