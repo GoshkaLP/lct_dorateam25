@@ -1,0 +1,172 @@
+.mkd-popup {
+  min-width: 280px;
+  max-width: 320px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.mkd-popup-header {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mkd-popup-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.mkd-popup-id {
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.mkd-popup-content {
+  padding: 16px;
+}
+
+.mkd-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mkd-info-row:last-of-type {
+  border-bottom: none;
+  margin-bottom: 16px;
+}
+
+.mkd-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.mkd-value {
+  font-size: 13px;
+  color: #333;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.mkd-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.mkd-stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.mkd-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4facfe;
+  margin-bottom: 4px;
+}
+
+.mkd-stat-label {
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mkd-coordinates {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.mkd-coordinate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.mkd-coordinate:last-child {
+  margin-bottom: 0;
+}
+
+.mkd-coord-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.mkd-coord-value {
+  font-size: 12px;
+  color: #333;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  background: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Анимация появления */
+.mkd-popup {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .mkd-popup {
+    min-width: 260px;
+    max-width: 300px;
+  }
+  
+  .mkd-popup-header {
+    padding: 14px;
+  }
+  
+  .mkd-popup-title {
+    font-size: 16px;
+  }
+  
+  .mkd-popup-content {
+    padding: 14px;
+  }
+  
+  .mkd-stats {
+    gap: 12px;
+    padding: 10px;
+  }
+  
+  .mkd-stat-value {
+    font-size: 20px;
+  }
+}
