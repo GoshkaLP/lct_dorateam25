@@ -68,7 +68,7 @@ function MinimapBounds({ parentMap, zoom }) {
 
 function MinimapControl({ position, zoom }) {
   const parentMap = useMap();
-  const mapZoom = zoom || 0;
+  const mapZoom = zoom || 8;
 
   // Memoize the minimap so it's not affected by position changes
   const minimap = useMemo(
@@ -169,16 +169,42 @@ function ReactControlExample({
     if (layerType === "rectangle") {
       const bounds = layer.getBounds();
       console.log("Rectangle created with bounds:", bounds);
-    }
-    if (e.layerType === "rectangle") {
-      setRectangle(null);
-      setRectangle(e.layer.getBounds());
+      setRectangle(bounds);
+      // Удаляем исходный прямоугольник, так как мы будем рендерить его через компонент Rectangle
       e.layer.remove();
     }
   };
 
+  const handleDeleteRectangle = () => {
+    setRectangle(null);
+  };
+
   return (
     <>
+      {rectangle && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            zIndex: 1000,
+          }}
+        >
+          <button
+            onClick={handleDeleteRectangle}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#ff4444",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Удалить прямоугольник
+          </button>
+        </div>
+      )}
       <MapContainer
         style={{ height: "100vh", zIndex: 1 }}
         center={[55.7022, 37.4155]}
@@ -201,8 +227,8 @@ function ReactControlExample({
             onEachFeature={showInfoOnGeo}
           />
         ) : null}
-        <MinimapControl position="topright" />
-        <LocationMarker setCoordinatesPoint={setCoordinatesPoint} />
+        {/* <MinimapControl position="topright" /> */}
+        {/* <LocationMarker setCoordinatesPoint={setCoordinatesPoint} /> */}
         <FeatureGroup>
           <EditControl
             position="bottomright"

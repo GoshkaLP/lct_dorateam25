@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MainSection from "../../components/Main/Main";
 import Filters from "../../components/Filters/Filters";
-import { RightSidebar } from "../../components";
+import { Analytics } from "../../components";
 
 const Main = () => {
   const [coordinatesPoint, setCoordinatesPoint] = useState({
@@ -23,7 +23,7 @@ const Main = () => {
         selectedCrossingFilters={selectedCrossingFilters}
         filterNames={filterNames}
       />
-      <RightSidebar />
+      <Analytics />
     </main>
   );
 };

@@ -3,7 +3,7 @@ import React from "react";
 const Reports = () => {
   return (
     <div style={{ padding: "85px 40px" }}>
-      <h2>Reports</h2>
+      <h2>Отчёты</h2>
       <table style={{ borderCollapse: "collapse", width: "100%" }}>
         <thead>
           <tr>

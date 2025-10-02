@@ -1,9 +1,10 @@
-@import url('./vendor/normalize.css');
+@import url("./vendor/normalize.css");
 
-@import url('./vendor/fonts.css');
+@import url("./vendor/fonts.css");
 
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
+  /* font-family: "Nunito", sans-serif; */
 }
 .sr-only {
   display: none;
@@ -21,11 +22,11 @@ body {
   height: 4px;
   background-color: transparent;
   border-radius: 14px;
-  border: 1px solid #EFEFEF;
+  /* border: 1px solid #efefef; */
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #CACACA;
+  background-color: #cacaca;
   border-radius: 24px;
 }
 

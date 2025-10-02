@@ -4,7 +4,10 @@ import Card from "@mui/material/Card";
 import Checkbox from "@mui/material/Checkbox";
 import Radio from "@mui/material/Radio";
 import Button from "@mui/material/Button";
-
+import Accordion from "@mui/material/Accordion";
+import AccordionActions from "@mui/material/AccordionActions";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
 import "./Filter.css";
 import { useFormik } from "formik";
 import { AddressesField } from "./components/AddressesField/AddressesField";
@@ -21,6 +24,9 @@ import {
 import { FieldNames } from "./constant";
 import { useData } from "./components/DataContext/DataContext";
 import { Slider, Switch } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
 
 function Filters({
   coordinatesPoint,
@@ -33,9 +39,11 @@ function Filters({
   const [range, setRange] = useState(false);
 
   const [submitCode, setSubmitCode] = useState(null);
-  const areas = useFetch("http://178.20.44.143:8080/navigation/filters/areas");
+  const areas = useFetch(
+    `https://apidata.mos.ru/v1/datasets/3305/features?api_key=${process.env.REACT_APP_MOS_API_KEY}`
+  );
   const addresses = useFetch(
-    "http://178.20.44.143:8080/navigation/filters/addresses"
+    `https://apidata.mos.ru/v1/datasets/3305/features?api_key=${process.env.REACT_APP_MOS_API_KEY}`
   );
   const cadastrals = useFetch(
     "http://178.20.44.143:8080/navigation/filters/cadastrals"
@@ -374,10 +382,37 @@ function Filters({
 
   return (
     <Box className="filters">
-      <Card className="filters-card" variant="outlined">
-        {card}
-      </Card>
+      <Accordion style={{ borderRadius: "20px" }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1-content"
+          id="panel1-header"
+        >
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+              Фильтры
+            </div>
+            <Chip
+              label="267 объектов"
+              color="primary"
+              style={{ backgroundColor: "#0D4CD3" }}
+            />
+          </Stack>
+        </AccordionSummary>
+        <AccordionDetails>
+          {/* <Card className="filters-card" variant="outlined"> */}
+          {card}
+          {/* </Card> */}
+        </AccordionDetails>
+      </Accordion>
     </Box>
   );
 }
 export default Filters;
+
+//
+//
+// <AccordionDetails>
+//   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+//   malesuada lacus ex, sit amet blandit leo lobortis eget.
+// </AccordionDetails>

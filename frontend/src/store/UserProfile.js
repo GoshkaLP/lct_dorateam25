@@ -9,7 +9,7 @@ import {
 const fetchUserProfile = async () => {
   // Здесь может быть реальный API-запрос
   return {
-    name: "",
+    name: "Иванов В.П.",
     email: "ivanov@example.com",
     role: "Диспетчер",
   };
@@ -23,13 +23,23 @@ export const UserProfileProvider = ({ children }) => {
     queryFn: fetchUserProfile,
   });
   const [isAuth, setIsAuth] = useState(false);
+  const handleAuthChange = (flag) => {
+    setIsAuth(flag);
+    data.name = "Иванов В.П.";
+  };
 
   // Если имя не пустое, считаем авторизованным
-  const effectiveIsAuth = isAuth || Boolean(data?.name);
+  const effectiveIsAuth = isAuth;
 
   return (
     <UserProfileContext.Provider
-      value={{ data, isLoading, error, isAuth: effectiveIsAuth, setIsAuth }}
+      value={{
+        data,
+        isLoading,
+        error,
+        isAuth: effectiveIsAuth,
+        handleAuthChange,
+      }}
     >
       {children}
     </UserProfileContext.Provider>
