@@ -113,6 +113,7 @@ function Filters({
     "http://178.20.44.143:8080/navigation/filters/cadastrals"
   );
   const districts = useFetch("http://5.129.195.176:8080/api/region/districts");
+  const regions = useFetch("http://5.129.195.176:8080/api/region/regions");
   const crossingFilters = useFetch(
     "http://178.20.44.143:8080/crossing/filters/"
   );
@@ -699,6 +700,49 @@ function Filters({
                   ))
                 : null}
             </FormGroup>
+          </AccordionDetails>
+        </Accordion>
+        <Divider style={{ margin: "20px 0 20px 0" }} />
+
+        {/* Новый блок "Район" по аналогии с "Диспетчер объекта" */}
+        <Accordion style={{ borderRadius: "20px", margin: 0, width: "100%" }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel-rayon-content"
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+                Район
+              </div>
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails>
+            {/* Autocomplete с чекбоксами для районов из API */}
+            <Autocomplete
+              multiple
+              options={
+                Array.isArray(regions.data)
+                  ? regions.data.map((r) => r.value || r)
+                  : []
+              }
+              disableCloseOnSelect
+              getOptionLabel={(option) => option}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                  {option}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Выберите район"
+                  placeholder="Район"
+                />
+              )}
+              sx={{ width: "100%" }}
+              loading={regions.loading}
+            />
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
