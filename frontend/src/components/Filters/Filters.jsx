@@ -103,32 +103,32 @@ function Filters({
   };
 
   const [submitCode, setSubmitCode] = useState(null);
-  const areas = useFetch(
-    `https://apidata.mos.ru/v1/datasets/3305/features?api_key=${process.env.REACT_APP_MOS_API_KEY}`
-  );
-  const addresses = useFetch(
-    `https://apidata.mos.ru/v1/datasets/3305/features?api_key=${process.env.REACT_APP_MOS_API_KEY}`
-  );
-  const cadastrals = useFetch(
-    "http://178.20.44.143:8080/navigation/filters/cadastrals"
-  );
+  // const areas = useFetch(
+  //   `https://apidata.mos.ru/v1/datasets/3305/features?api_key=${process.env.REACT_APP_MOS_API_KEY}`
+  // );
+  // const addresses = useFetch(
+  //   `https://apidata.mos.ru/v1/datasets/3305/features?api_key=${process.env.REACT_APP_MOS_API_KEY}`
+  // );
+  // const cadastrals = useFetch(
+  //   "http://178.20.44.143:8080/navigation/filters/cadastrals"
+  // );
   const districts = useFetch("http://5.129.195.176:8080/api/region/districts");
   const regions = useFetch("http://5.129.195.176:8080/api/region/regions");
-  const crossingFilters = useFetch(
-    "http://178.20.44.143:8080/crossing/filters/"
-  );
+  // const crossingFilters = useFetch(
+  //   "http://178.20.44.143:8080/crossing/filters/"
+  // );
 
-  const areasData = useMemo(() => getOptionsAndMap(areas), [areas]);
+  // const areasData = useMemo(() => getOptionsAndMap(areas), [areas]);
   const districtData = useMemo(() => getOptionsAndMap(districts), [districts]);
-  const addressesData = useMemo(() => getOptionsAndMap(addresses), [addresses]);
-  const cadastralData = useMemo(
-    () => getOptionsAndMap(cadastrals),
-    [cadastrals]
-  );
-  const crossingFiltersData = useMemo(
-    () => getFilterOptions(crossingFilters),
-    [crossingFilters]
-  );
+  // const addressesData = useMemo(() => getOptionsAndMap(addresses), [addresses]);
+  // const cadastralData = useMemo(
+  //   () => getOptionsAndMap(cadastrals),
+  //   [cadastrals]
+  // );
+  // const crossingFiltersData = useMemo(
+  //   () => getFilterOptions(crossingFilters),
+  //   [crossingFilters]
+  // );
 
   const [filterValues, setFilterValues] = useState({});
   const [showToolTip, setShowToolTip] = useState(null);
@@ -183,11 +183,11 @@ function Filters({
             },
           }
         : values;
-      setSelectedCrossingFilters(data.crossingFilters);
+      // setSelectedCrossingFilters(data.crossingFilters);
       const tmp = {};
-      crossingFiltersData.map.forEach((value, key) => {
-        tmp[value.key] = key;
-      });
+      // crossingFiltersData?.map.forEach((value, key) => {
+      //   tmp[value.key] = key;
+      // });
       setFilterNames(tmp);
       try {
         fetch("http://178.20.44.143:8080/polygons/", {
@@ -225,7 +225,7 @@ function Filters({
         value: isChecked ? 0 : null,
       },
     }));
-    formik.setFieldValue(`crossingFilters.${key}`, 0);
+    formik.setFieldValue(`crossingFilters?.${key}`, 0);
   };
 
   const handleRadioChange = (option, key, newValue) => {
@@ -236,7 +236,7 @@ function Filters({
         value: newValue,
       },
     }));
-    formik.setFieldValue(`crossingFilters.${key}`, newValue);
+    formik.setFieldValue(`crossingFilters?.${key}`, newValue);
   };
 
   const card = (
@@ -533,44 +533,34 @@ function Filters({
                 }}
               />
             </FormGroup>
-
-            <Divider style={{ margin: "20px 0 20px 0" }} />
-            <Accordion
-              style={{
-                borderRadius: "20px",
-                margin: 0,
-                width: "100%",
-                // "&::before": { display: "none" },
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel-id-content"
-              >
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ alignItems: "center" }}
-                >
-                  <div
-                    style={{ textDecoration: "semibold", fontWeight: "700" }}
-                  >
-                    ID объекта
-                  </div>
-                </Stack>
-              </AccordionSummary>
-              <AccordionDetails>
-                <CadastralsField
-                  value={formik.values.cadastrals}
-                  onChange={(_, newValue) =>
-                    formik.setFieldValue(FieldNames.cadastrals, newValue)
-                  }
-                  loading={cadastrals.loading}
-                  cadastrals={cadastralData.map}
-                  options={cadastralData.options}
-                />
-              </AccordionDetails>
-            </Accordion>
+          </AccordionDetails>
+        </Accordion>
+        <Divider style={{ margin: "20px 0 20px 0" }} />
+        <Accordion
+          style={{
+            borderRadius: "20px",
+            margin: 0,
+            width: "100%",
+            // "&::before": { display: "none" },
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel-id-content"
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+                ID объекта
+              </div>
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails>
+            <CadastralsField
+              value={""}
+              loading={false}
+              cadastrals={[]}
+              options={[]}
+            />
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
@@ -772,13 +762,10 @@ function Filters({
           </AccordionSummary>
           <AccordionDetails>
             <AddressesField
-              value={formik.values.addresses}
-              onChange={(_, newValue) =>
-                formik.setFieldValue(FieldNames.addresses, newValue)
-              }
-              loading={addresses.loading}
-              addresses={addressesData.map}
-              options={addressesData.options}
+              value={''}
+              loading={false}
+              addresses={[]}
+              options={[]}
             />
           </AccordionDetails>
         </Accordion>
