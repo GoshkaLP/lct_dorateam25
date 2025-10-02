@@ -114,7 +114,7 @@ const Main = () => {
               />
             </Stack>
           </AccordionSummary>
-          <AccordionDetails>
+          <AccordionDetails style={{ overflowY: "auto", maxHeight: "70vh" }}>
             <Filters
               coordinatesPoint={coordinatesPoint}
               setSelectedCrossingFilters={setSelectedCrossingFilters}
@@ -166,7 +166,7 @@ const Main = () => {
               </div>
             </Stack>
           </AccordionSummary>
-          <AccordionDetails>
+          <AccordionDetails style={{ overflowY: "auto", maxHeight: "70vh" }}>
             <Analytics />
           </AccordionDetails>
         </Accordion>
