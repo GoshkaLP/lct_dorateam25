@@ -1,4 +1,5 @@
 from geoalchemy2.shape import to_shape
+from pydantic import BaseModel
 
 from api.choices import ObjectStatus
 from api.orm import models
@@ -8,12 +9,15 @@ from api.services.schemas.base import (
 )
 
 
-class Itp(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
+class LatitudeLongitudeObject(BaseModel):
+    latitude: float
+    longitude: float
+
+
+class Itp(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin, LatitudeLongitudeObject):
     district: str
     region: str
     dispatcher: str
-    latitude: float
-    longitude: float
     status: ObjectStatus
 
     @classmethod
@@ -32,7 +36,7 @@ class Itp(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
         )
 
 
-class Mkd(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
+class Mkd(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin, LatitudeLongitudeObject):
     district: str
     region: str
     street: str
@@ -40,8 +44,6 @@ class Mkd(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
     house_number: str
     residents_amount: int
     floors_amount: int
-    latitude: float
-    longitude: float
     itp_id: str
     status: ObjectStatus
 
@@ -68,7 +70,7 @@ class Mkd(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
 
 class Lines(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
     itp_id: str
-    coords: list[list[float]]
+    coords: list[LatitudeLongitudeObject]
     status: ObjectStatus
     layout_index: int
 
@@ -76,7 +78,7 @@ class Lines(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
     def from_orm_model(cls, orm_model: models.Lines) -> "Lines":
         line = to_shape(orm_model.geometry)
         return cls(
-            coords=list(line.coords),
+            coords=[LatitudeLongitudeObject(latitude=coord[1], longitude=coord[0]) for coord in line.coords],
             layout_index=orm_model.layout_index,
             deleted=orm_model.deleted,
             created_at=orm_model.created_at,

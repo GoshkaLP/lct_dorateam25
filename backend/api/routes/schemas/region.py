@@ -8,12 +8,15 @@ from api.routes.schemas.base import (
 from api.services.schemas import region as service_schemas
 
 
-class Itp(BaseApiSchema[service_schemas.Itp], IdApiSchemaMixin):
+class LatitudeLongitudeObject(BaseModel):
+    latitude: float
+    longitude: float
+
+
+class Itp(BaseApiSchema[service_schemas.Itp], IdApiSchemaMixin, LatitudeLongitudeObject):
     district: str
     region: str
     dispatcher: str
-    latitude: float
-    longitude: float
     status: ObjectStatus
 
 
@@ -21,7 +24,7 @@ class ItpFilter(BaseModel):
     value: str
 
 
-class Mkd(BaseApiSchema[service_schemas.Mkd], IdApiSchemaMixin):
+class Mkd(BaseApiSchema[service_schemas.Mkd], IdApiSchemaMixin, LatitudeLongitudeObject):
     district: str
     region: str
     street: str
@@ -29,8 +32,6 @@ class Mkd(BaseApiSchema[service_schemas.Mkd], IdApiSchemaMixin):
     house_number: str
     residents_amount: int
     floors_amount: int
-    latitude: float
-    longitude: float
     status: ObjectStatus
     itp_id: str
 
@@ -51,4 +52,4 @@ class Lines(BaseApiSchema[service_schemas.Lines], IdApiSchemaMixin):
     status: ObjectStatus
     itp_id: str
     layout_index: int
-    coords: list[list[float]]
+    coords: list[LatitudeLongitudeObject]
