@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainSection from "../../components/Main/Main";
 import Filters from "../../components/Filters/Filters";
 import { Analytics } from "../../components";
@@ -15,10 +15,11 @@ import FullscreenOutlined from "@mui/icons-material/FullscreenOutlined";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../const/const";
 import style from "./style.module.css";
+import { useData } from "../../components/Filters/components/DataContext/DataContext";
 
 const Main = () => {
   const navigate = useNavigate();
-
+  const { regions } = useData();
   const handleDownloadAnalytics = async () => {
     try {
       // Создаем текстовое содержимое для файла
@@ -105,7 +106,7 @@ const Main = () => {
                 Фильтры
               </div>
               <Chip
-                label="267 объектов"
+                label={`${regions?.data?.length} объектов`}
                 color="primary"
                 style={{ backgroundColor: "#0D4CD3" }}
               />

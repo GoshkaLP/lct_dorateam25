@@ -1,5 +1,5 @@
 // Classes used by Leaflet to position controls
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   Rectangle,
@@ -24,6 +24,7 @@ import ReactDOMServer from "react-dom/server";
 import L from "leaflet";
 import useFetch from "../../hooks/useFetch";
 import MarkerClusterGroup from "../MarkerClusterGroup/MarkerClusterGroup";
+import { useData } from "../Filters/components/DataContext/DataContext";
 
 const POSITION_CLASSES = {
   bottomleft: "leaflet-bottom leaflet-left",
@@ -34,9 +35,9 @@ const POSITION_CLASSES = {
 
 // Status color mapping for regions
 const STATUS_COLORS = {
-  "Зеленый": "#28a745", // Green
-  "Оранжевый": "#fd7e14", // Orange
-  "Желтый": "#F6C84E",  // Yellow (matching original ITP_yellow)
+  Зеленый: "#28a745", // Green
+  Оранжевый: "#fd7e14", // Orange
+  Желтый: "#F6C84E", // Yellow (matching original ITP_yellow)
 };
 
 // Removed hardcoded points - now using dynamic regions data
@@ -128,6 +129,7 @@ function ReactControlExample({
   selectedCrossingFilters,
   filterNames,
 }) {
+  const { setRegions } = useData();
   // Fetch regions data from API
   const regions = useFetch("http://5.129.195.176:8080/api/region");
 
@@ -139,14 +141,15 @@ function ReactControlExample({
   // Function to create colored marker icons similar to ITP_yellow
   const createColoredIcon = (status) => {
     const color = STATUS_COLORS[status] || "#6c757d"; // Default gray for unknown status
-    
+
     // Get status letter for the icon
-    const statusLetter = {
-      "Зеленый": "З", // Green
-      "Оранжевый": "О", // Orange  
-      "Желтый": "Ж",  // Yellow
-    }[status] || "?";
-    
+    const statusLetter =
+      {
+        Зеленый: "З", // Green
+        Оранжевый: "О", // Orange
+        Желтый: "Ж", // Yellow
+      }[status] || "?";
+
     // Create SVG-based marker similar to ITP_yellow
     const svgIcon = `
       <svg width="32" height="42" viewBox="0 0 50 65" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -154,9 +157,9 @@ function ReactControlExample({
         <text x="25" y="35" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="bold">${statusLetter}</text>
       </svg>
     `;
-    
+
     return new L.DivIcon({
-      className: 'custom-svg-icon',
+      className: "custom-svg-icon",
       html: svgIcon,
       iconSize: [32, 42],
       iconAnchor: [16, 42],
@@ -279,21 +282,21 @@ function ReactControlExample({
             iconCreateFunction={(cluster) => {
               const count = cluster.getChildCount();
               const markers = cluster.getAllChildMarkers();
-              
+
               // Determine cluster color based on status distribution
               const statusCounts = markers.reduce((acc, marker) => {
-                const status = marker.options.status || 'unknown';
+                const status = marker.options.status || "unknown";
                 acc[status] = (acc[status] || 0) + 1;
                 return acc;
               }, {});
-              
+
               // Get the most common status
-              const dominantStatus = Object.keys(statusCounts).reduce((a, b) => 
+              const dominantStatus = Object.keys(statusCounts).reduce((a, b) =>
                 statusCounts[a] > statusCounts[b] ? a : b
               );
-              
-              const clusterColor = STATUS_COLORS[dominantStatus] || '#6c757d';
-              
+
+              const clusterColor = STATUS_COLORS[dominantStatus] || "#6c757d";
+
               return new L.DivIcon({
                 html: `<div style="
                   background-color: ${clusterColor};
@@ -309,26 +312,37 @@ function ReactControlExample({
                   font-size: 14px;
                   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
                 ">${count}</div>`,
-                className: 'custom-cluster-icon',
+                className: "custom-cluster-icon",
                 iconSize: [40, 40],
-                iconAnchor: [20, 20]
+                iconAnchor: [20, 20],
               });
             }}
           >
             {regions.data.map((region) => (
-              <Marker 
-                key={region.id} 
-                position={[region.latitude, region.longitude]} 
+              <Marker
+                key={region.id}
+                position={[region.latitude, region.longitude]}
                 icon={createColoredIcon(region.status)}
                 status={region.status}
               >
                 <Popup>
                   <div>
                     <h4>{region.region}</h4>
-                    <p><strong>Район:</strong> {region.district}</p>
-                    <p><strong>Диспетчер:</strong> {region.dispatcher}</p>
-                    <p><strong>Статус:</strong> <span style={{color: STATUS_COLORS[region.status]}}>{region.status}</span></p>
-                    <p><strong>ID:</strong> {region.id}</p>
+                    <p>
+                      <strong>Район:</strong> {region.district}
+                    </p>
+                    <p>
+                      <strong>Диспетчер:</strong> {region.dispatcher}
+                    </p>
+                    <p>
+                      <strong>Статус:</strong>{" "}
+                      <span style={{ color: STATUS_COLORS[region.status] }}>
+                        {region.status}
+                      </span>
+                    </p>
+                    <p>
+                      <strong>ID:</strong> {region.id}
+                    </p>
                   </div>
                 </Popup>
               </Marker>
