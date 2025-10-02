@@ -1,13 +1,8 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
-import Checkbox from "@mui/material/Checkbox";
 import Radio from "@mui/material/Radio";
 import Button from "@mui/material/Button";
-import Accordion from "@mui/material/Accordion";
-import AccordionActions from "@mui/material/AccordionActions";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
 import "./Filter.css";
 import { useFormik } from "formik";
 import { AddressesField } from "./components/AddressesField/AddressesField";
@@ -24,8 +19,14 @@ import {
 import { FieldNames } from "./constant";
 import { useData } from "./components/DataContext/DataContext";
 import { Slider, Switch } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Chip from "@mui/material/Chip";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 import Stack from "@mui/material/Stack";
 
 function Filters({
@@ -37,6 +38,10 @@ function Filters({
   const [localData, setLocalData] = useState(null);
   const [byPoint, setByPoint] = useState(false);
   const [range, setRange] = useState(false);
+  const [checkedState, setCheckedState] = useState({
+    itp: true,
+    mkd: true,
+  });
 
   const [submitCode, setSubmitCode] = useState(null);
   const areas = useFetch(
@@ -178,7 +183,332 @@ function Filters({
 
   const card = (
     <React.Fragment>
-      <form onSubmit={formik.handleSubmit} className="form">
+      <Divider style={{ marginBottom: "20px" }} />
+      <form
+        onSubmit={formik.handleSubmit}
+        className="form"
+        style={{ width: "100%", padding: 0 }}
+      >
+        <Accordion
+          style={{
+            borderRadius: "20px",
+            margin: 0,
+            width: "100%",
+            // "&::before": { display: "none" },
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1-content"
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+                Тип объекта
+              </div>
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                    checked={checkedState.itp}
+                    onChange={(e) =>
+                      setCheckedState((prev) => ({
+                        ...prev,
+                        itp: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: "#9E9E9E",
+                      "&.Mui-checked": {
+                        color: "#0D4CD3",
+                      },
+                    }}
+                  />
+                }
+                labelPlacement="start"
+                label="ИТП"
+                sx={{
+                  margin: 0,
+                  justifyContent: "space-between",
+                  "& .MuiFormControlLabel-label": {
+                    color: checkedState.itp ? "inherit" : "#9E9E9E",
+                    transition: "color 0.2s",
+                  },
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                    checked={checkedState.mkd}
+                    onChange={(e) =>
+                      setCheckedState((prev) => ({
+                        ...prev,
+                        mkd: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: "#9E9E9E",
+                      "&.Mui-checked": {
+                        color: "#0D4CD3",
+                      },
+                    }}
+                  />
+                }
+                labelPlacement="start"
+                label="МКД"
+                sx={{
+                  margin: 0,
+                  justifyContent: "space-between",
+                  "& .MuiFormControlLabel-label": {
+                    color: checkedState.mkd ? "inherit" : "#9E9E9E",
+                    transition: "color 0.2s",
+                  },
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                    checked={checkedState.uspd}
+                    onChange={(e) =>
+                      setCheckedState((prev) => ({
+                        ...prev,
+                        uspd: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: "#9E9E9E",
+                      "&.Mui-checked": {
+                        color: "#0D4CD3",
+                      },
+                    }}
+                  />
+                }
+                labelPlacement="start"
+                label="УСПД"
+                sx={{
+                  margin: 0,
+                  justifyContent: "space-between",
+                  "& .MuiFormControlLabel-label": {
+                    color: checkedState.uspd ? "inherit" : "#9E9E9E",
+                    transition: "color 0.2s",
+                  },
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                    checked={checkedState.odpu_gvs}
+                    onChange={(e) =>
+                      setCheckedState((prev) => ({
+                        ...prev,
+                        odpu_gvs: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: "#9E9E9E",
+                      "&.Mui-checked": {
+                        color: "#0D4CD3",
+                      },
+                    }}
+                  />
+                }
+                labelPlacement="start"
+                label="ОДПУ ГВС"
+                sx={{
+                  margin: 0,
+                  justifyContent: "space-between",
+                  "& .MuiFormControlLabel-label": {
+                    color: checkedState.odpu_gvs ? "inherit" : "#9E9E9E",
+                    transition: "color 0.2s",
+                  },
+                }}
+              />
+            </FormGroup>
+          </AccordionDetails>
+        </Accordion>
+        <Divider style={{ margin: "20px 0 20px 0" }} />
+        <Accordion
+          style={{
+            borderRadius: "20px",
+            margin: 0,
+            width: "100%",
+            // "&::before": { display: "none" },
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1-content"
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+                Статус объекта
+              </div>
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                    checked={checkedState.оранжевый}
+                    onChange={(e) =>
+                      setCheckedState((prev) => ({
+                        ...prev,
+                        оранжевый: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: "#9E9E9E",
+                      "&.Mui-checked": {
+                        color: "#0D4CD3",
+                      },
+                    }}
+                  />
+                }
+                labelPlacement="start"
+                label="Оранжевый"
+                sx={{
+                  margin: 0,
+                  justifyContent: "space-between",
+                  "& .MuiFormControlLabel-label": {
+                    color: checkedState.оранжевый ? "inherit" : "#9E9E9E",
+                    transition: "color 0.2s",
+                  },
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                    checked={checkedState.жёлтый}
+                    onChange={(e) =>
+                      setCheckedState((prev) => ({
+                        ...prev,
+                        жёлтый: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: "#9E9E9E",
+                      "&.Mui-checked": {
+                        color: "#0D4CD3",
+                      },
+                    }}
+                  />
+                }
+                labelPlacement="start"
+                label="Жёлтый"
+                sx={{
+                  margin: 0,
+                  justifyContent: "space-between",
+                  "& .MuiFormControlLabel-label": {
+                    color: checkedState.жёлтый ? "inherit" : "#9E9E9E",
+                    transition: "color 0.2s",
+                  },
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                    checked={checkedState.Зёленый}
+                    onChange={(e) =>
+                      setCheckedState((prev) => ({
+                        ...prev,
+                        Зёленый: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: "#9E9E9E",
+                      "&.Mui-checked": {
+                        color: "#0D4CD3",
+                      },
+                    }}
+                  />
+                }
+                labelPlacement="start"
+                label="Зёленый"
+                sx={{
+                  margin: 0,
+                  justifyContent: "space-between",
+                  "& .MuiFormControlLabel-label": {
+                    color: checkedState.Зёленый ? "inherit" : "#9E9E9E",
+                    transition: "color 0.2s",
+                  },
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    defaultChecked
+                    checked={checkedState.unknown}
+                    onChange={(e) =>
+                      setCheckedState((prev) => ({
+                        ...prev,
+                        unknown: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: "#9E9E9E",
+                      "&.Mui-checked": {
+                        color: "#0D4CD3",
+                      },
+                    }}
+                  />
+                }
+                labelPlacement="start"
+                label="Неизвестный"
+                sx={{
+                  margin: 0,
+                  justifyContent: "space-between",
+                  "& .MuiFormControlLabel-label": {
+                    color: checkedState.unknown ? "inherit" : "#9E9E9E",
+                    transition: "color 0.2s",
+                  },
+                }}
+              />
+            </FormGroup>
+          </AccordionDetails>
+        </Accordion>
+        <Divider style={{ margin: "20px 0 20px 0" }} />
+        <Accordion
+          style={{
+            borderRadius: "20px",
+            margin: 0,
+            width: "100%",
+            // "&::before": { display: "none" },
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1-content"
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+                ID объекта
+              </div>
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails>
+            <CadastralsField
+              value={formik.values.cadastrals}
+              onChange={(_, newValue) =>
+                formik.setFieldValue(FieldNames.cadastrals, newValue)
+              }
+              loading={cadastrals.loading}
+              cadastrals={cadastralData.map}
+              options={cadastralData.options}
+            />
+          </AccordionDetails>
+        </Accordion>
+      </form>
+      {false && (
         <Box className="form-container">
           <div className="form-field-group">
             {/* <label htmlFor="addresses">Поиск по адресу</label> */}
@@ -376,43 +706,10 @@ function Filters({
           </div>
           {/* <button class="form-button" type="submit">Submit</button> */}
         </Box>
-      </form>
+      )}
     </React.Fragment>
   );
 
-  return (
-    <Box className="filters">
-      <Accordion style={{ borderRadius: "20px" }}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1-content"
-          id="panel1-header"
-        >
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
-              Фильтры
-            </div>
-            <Chip
-              label="267 объектов"
-              color="primary"
-              style={{ backgroundColor: "#0D4CD3" }}
-            />
-          </Stack>
-        </AccordionSummary>
-        <AccordionDetails>
-          {/* <Card className="filters-card" variant="outlined"> */}
-          {card}
-          {/* </Card> */}
-        </AccordionDetails>
-      </Accordion>
-    </Box>
-  );
+  return <Box className="filters">{card}</Box>;
 }
 export default Filters;
-
-//
-//
-// <AccordionDetails>
-//   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-//   malesuada lacus ex, sit amet blandit leo lobortis eget.
-// </AccordionDetails>

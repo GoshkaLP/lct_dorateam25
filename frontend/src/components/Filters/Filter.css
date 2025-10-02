@@ -1,10 +1,16 @@
-.filters {
-  position: absolute;
-  z-index: 1000;
-  top: 90px;
-  right: 60px;
-  width: 370px;
-  height: 70vh;
+.filters .form::-webkit-scrollbar {
+  width: 0 !important;
+}
+.filters .MuiAccordionSummary-gutters {
+  padding: 0 10px 0 0 !important;
+}
+
+.filters .MuiAccordion-gutters {
+  box-shadow: none !important;
+}
+.filters .MuiAccordionDetails-root {
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 .filters-card {
