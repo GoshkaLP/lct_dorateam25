@@ -112,9 +112,7 @@ function Filters({
   const cadastrals = useFetch(
     "http://178.20.44.143:8080/navigation/filters/cadastrals"
   );
-  const districts = useFetch(
-    "http://178.20.44.143:8080/navigation/filters/districts"
-  );
+  const districts = useFetch("http://5.129.195.176:8080/api/region/districts");
   const crossingFilters = useFetch(
     "http://178.20.44.143:8080/crossing/filters/"
   );
@@ -391,7 +389,7 @@ function Filters({
             </FormGroup>
           </AccordionDetails>
         </Accordion>
-        {/* ...existing code... */}
+
         <Divider style={{ margin: "20px 0 20px 0" }} />
         <Accordion
           style={{
@@ -534,37 +532,44 @@ function Filters({
                 }}
               />
             </FormGroup>
-          </AccordionDetails>
-        </Accordion>
-        <Divider style={{ margin: "20px 0 20px 0" }} />
-        <Accordion
-          style={{
-            borderRadius: "20px",
-            margin: 0,
-            width: "100%",
-            // "&::before": { display: "none" },
-          }}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-          >
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
-                ID объекта
-              </div>
-            </Stack>
-          </AccordionSummary>
-          <AccordionDetails>
-            <CadastralsField
-              value={formik.values.cadastrals}
-              onChange={(_, newValue) =>
-                formik.setFieldValue(FieldNames.cadastrals, newValue)
-              }
-              loading={cadastrals.loading}
-              cadastrals={cadastralData.map}
-              options={cadastralData.options}
-            />
+
+            <Divider style={{ margin: "20px 0 20px 0" }} />
+            <Accordion
+              style={{
+                borderRadius: "20px",
+                margin: 0,
+                width: "100%",
+                // "&::before": { display: "none" },
+              }}
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+              >
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: "center" }}
+                >
+                  <div
+                    style={{ textDecoration: "semibold", fontWeight: "700" }}
+                  >
+                    ID объекта
+                  </div>
+                </Stack>
+              </AccordionSummary>
+              <AccordionDetails>
+                <CadastralsField
+                  value={formik.values.cadastrals}
+                  onChange={(_, newValue) =>
+                    formik.setFieldValue(FieldNames.cadastrals, newValue)
+                  }
+                  loading={cadastrals.loading}
+                  cadastrals={cadastralData.map}
+                  options={cadastralData.options}
+                />
+              </AccordionDetails>
+            </Accordion>
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
@@ -665,6 +670,35 @@ function Filters({
               )}
               sx={{ width: "100%" }}
             />
+          </AccordionDetails>
+        </Accordion>
+        <Divider style={{ margin: "20px 0 20px 0" }} />
+        {/* Новый блок "Округ" по аналогии с "Статус объекта" */}
+        <Accordion style={{ borderRadius: "20px", margin: 0, width: "100%" }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel-district-content"
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+                Округ
+              </div>
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails>
+            <FormGroup>
+              {Array.isArray(districts.data)
+                ? districts.data.map((okrug) => (
+                    <FormControlLabel
+                      key={okrug.value}
+                      control={<Checkbox defaultChecked />}
+                      labelPlacement="start"
+                      label={okrug.value}
+                      sx={{ margin: 0, justifyContent: "space-between" }}
+                    />
+                  ))
+                : null}
+            </FormGroup>
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
