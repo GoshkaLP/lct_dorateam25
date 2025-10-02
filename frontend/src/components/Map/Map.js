@@ -131,10 +131,15 @@ function ReactControlExample({
 }) {
   const { setRegions } = useData();
   // Fetch regions data from API
-  const regions = useFetch("http://5.129.195.176:8080/api/region");
+  const regions = useFetch("http://5.129.195.176:8080/api/region/itp");
 
-  console.log(regions.data);
-  // setRegions(regions);
+  console.log("Regions data structure:", regions.data);
+  console.log("First region:", regions.data?.[0]);
+  
+  // Обновляем контекст при изменении данных регионов
+  useEffect(() => {
+    setRegions(regions);
+  }, [regions.data, regions.loading, regions.error, setRegions]);
   const dataKey = useForceUpdateGeoJson(data);
   // Removed unused state variables
   const [rectangle, setRectangle] = useState(null);
@@ -319,7 +324,14 @@ function ReactControlExample({
               });
             }}
           >
-            {regions.data.map((region) => (
+            {regions.data
+              .filter((region) => 
+                region.latitude && 
+                region.longitude && 
+                !isNaN(region.latitude) && 
+                !isNaN(region.longitude)
+              )
+              .map((region) => (
               <Marker
                 key={region.id}
                 position={[region.latitude, region.longitude]}

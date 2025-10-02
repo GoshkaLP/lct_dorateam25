@@ -72,8 +72,10 @@ const Main = () => {
     setExpanded(isExpanded ? panel : false);
   };
   useEffect(() => {
-    console.log("🚀 ~ Main ~ regions:", regions);
-  }, [regions]);
+    if (regions?.data && regions.data.length > 0) {
+      console.log("Main: regions loaded, count:", regions.data.length);
+    }
+  }, [regions?.data?.length]);
   return (
     <main style={{ position: "relative" }}>
       <MainSection
@@ -114,7 +116,16 @@ const Main = () => {
                 Фильтры
               </div>
               <Chip
-                label={`${regions?.data?.length} объектов`}
+                label={
+                  regions?.loading 
+                    ? "Загрузка..." 
+                    : `${regions?.data?.filter(region => 
+                        region.latitude && 
+                        region.longitude && 
+                        !isNaN(region.latitude) && 
+                        !isNaN(region.longitude)
+                      ).length || 0} объектов`
+                }
                 color="primary"
                 style={{ backgroundColor: "#0D4CD3" }}
               />
