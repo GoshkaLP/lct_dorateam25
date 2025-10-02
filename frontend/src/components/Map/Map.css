@@ -139,3 +139,39 @@
 /*  left: 50%;*/
 /*  right: 50%;*/
 /*}*/
+
+/* Cluster styling improvements */
+.custom-cluster-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-svg-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Override default marker cluster styles */
+.marker-cluster-small {
+  background-color: rgba(181, 226, 140, 0.6);
+}
+
+.marker-cluster-small div {
+  background-color: rgba(110, 204, 57, 0.6);
+}
+
+.marker-cluster-medium {
+  background-color: rgba(241, 211, 87, 0.6);
+}
+
+.marker-cluster-medium div {
+  background-color: rgba(240, 194, 12, 0.6);
+}
+
+.marker-cluster-large {
+  background-color: rgba(253, 156, 115, 0.6);
+}
+
+.marker-cluster-large div {
+  background-color: rgba(241, 128, 23, 0.6);
+}

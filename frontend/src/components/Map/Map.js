@@ -11,7 +11,6 @@ import {
   Popup,
   useMapEvents,
   FeatureGroup,
-  Polyline,
 } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 
@@ -19,12 +18,12 @@ import { useEventHandlers } from "@react-leaflet/core";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "./Map.css";
-import Train from "../Train/Train";
 import useForceUpdateGeoJson from "./useForceUpdateGeoJson";
 import HoverCard from "../MapHoverCard/HoverCard";
 import ReactDOMServer from "react-dom/server";
-import ITP_yellow from "../../images/maps-markers/ITP_yellow.svg";
 import L from "leaflet";
+import useFetch from "../../hooks/useFetch";
+import MarkerClusterGroup from "../MarkerClusterGroup/MarkerClusterGroup";
 
 const POSITION_CLASSES = {
   bottomleft: "leaflet-bottom leaflet-left",
@@ -32,11 +31,15 @@ const POSITION_CLASSES = {
   topleft: "leaflet-top leaflet-left",
   topright: "leaflet-top leaflet-right",
 };
-const points = [
-  [55.7022, 37.4155],
-  [55.795022, 37.962525],
-  [55.608771, 37.616236],
-];
+
+// Status color mapping for regions
+const STATUS_COLORS = {
+  "Зеленый": "#28a745", // Green
+  "Оранжевый": "#fd7e14", // Orange
+  "Желтый": "#F6C84E",  // Yellow (matching original ITP_yellow)
+};
+
+// Removed hardcoded points - now using dynamic regions data
 const BOUNDS_STYLE = { weight: 1 };
 
 function MinimapBounds({ parentMap, zoom }) {
@@ -125,19 +128,43 @@ function ReactControlExample({
   selectedCrossingFilters,
   filterNames,
 }) {
-  const hexbinKey = useForceUpdateGeoJson(hexbin);
-  const polygonsKey = useForceUpdateGeoJson(polygons);
+  // Fetch regions data from API
+  const regions = useFetch("http://5.129.195.176:8080/api/region");
+
+  console.log(regions.data);
   const dataKey = useForceUpdateGeoJson(data);
-  const [isOpenHex, setIsOpenHex] = useState(false);
-  const [isOpenPolygon, setIsOpenPolygon] = useState(true);
+  // Removed unused state variables
   const [rectangle, setRectangle] = useState(null);
 
-  const customIcon = new L.Icon({
-    iconUrl: ITP_yellow,
-    iconSize: [32, 32], // размер иконки
-    iconAnchor: [16, 32], // точка привязки
-    popupAnchor: [0, -32], // точка для popup
-  });
+  // Function to create colored marker icons similar to ITP_yellow
+  const createColoredIcon = (status) => {
+    const color = STATUS_COLORS[status] || "#6c757d"; // Default gray for unknown status
+    
+    // Get status letter for the icon
+    const statusLetter = {
+      "Зеленый": "З", // Green
+      "Оранжевый": "О", // Orange  
+      "Желтый": "Ж",  // Yellow
+    }[status] || "?";
+    
+    // Create SVG-based marker similar to ITP_yellow
+    const svgIcon = `
+      <svg width="32" height="42" viewBox="0 0 50 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 7C0 4.79086 1.79086 3 4 3H46C48.2091 3 50 4.79086 50 7V53C50 55.2091 48.2091 57 46 57H34.6569C33.596 57 32.5786 57.4214 31.8284 58.1716L27.8284 62.1716C26.2663 63.7337 23.7337 63.7337 22.1716 62.1716L18.1716 58.1716C17.4214 57.4214 16.404 57 15.3431 57H4C1.79086 57 0 55.2091 0 53V7Z" fill="${color}"/>
+        <text x="25" y="35" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="bold">${statusLetter}</text>
+      </svg>
+    `;
+    
+    return new L.DivIcon({
+      className: 'custom-svg-icon',
+      html: svgIcon,
+      iconSize: [32, 42],
+      iconAnchor: [16, 42],
+      popupAnchor: [0, -42],
+    });
+  };
+
+  // Removed customIcon - now using createColoredIcon function
   const style = (feature) => {
     return {
       fillColor: feature.properties.color,
@@ -156,13 +183,7 @@ function ReactControlExample({
     layer.bindTooltip(tooltipContent, { permanent: false });
   };
 
-  const handleToggleHex = () => {
-    setIsOpenHex(!isOpenHex);
-  };
-
-  const handleTogglePolygon = () => {
-    setIsOpenPolygon(!isOpenPolygon);
-  };
+  // Removed unused toggle functions
 
   const onCreated = (e) => {
     const { layerType, layer } = e;
@@ -246,14 +267,73 @@ function ReactControlExample({
         {/* {trains.map((train) => {
                     return <Train key={train.train_index} train={train} onClick={handleTrainClick} onOutsideClick={handleMapClick} />
                 })} */}
-        {points.map((coords, idx) => (
-          <Marker key={idx} position={coords} icon={customIcon}>
-            <Popup>Точка {idx + 1}</Popup>
-          </Marker>
-        ))}
-        {/* Линия между двумя первыми точками */}
-        {points.length >= 2 && (
-          <Polyline positions={[points[0], points[1]]} color="blue" />
+        {/* Render region markers with clustering */}
+        {regions.data && regions.data.length > 0 && (
+          <MarkerClusterGroup
+            chunkedLoading
+            maxClusterRadius={50}
+            spiderfyOnMaxZoom={true}
+            showCoverageOnHover={false}
+            zoomToBoundsOnClick={true}
+            removeOutsideVisibleBounds={true}
+            iconCreateFunction={(cluster) => {
+              const count = cluster.getChildCount();
+              const markers = cluster.getAllChildMarkers();
+              
+              // Determine cluster color based on status distribution
+              const statusCounts = markers.reduce((acc, marker) => {
+                const status = marker.options.status || 'unknown';
+                acc[status] = (acc[status] || 0) + 1;
+                return acc;
+              }, {});
+              
+              // Get the most common status
+              const dominantStatus = Object.keys(statusCounts).reduce((a, b) => 
+                statusCounts[a] > statusCounts[b] ? a : b
+              );
+              
+              const clusterColor = STATUS_COLORS[dominantStatus] || '#6c757d';
+              
+              return new L.DivIcon({
+                html: `<div style="
+                  background-color: ${clusterColor};
+                  border: 3px solid white;
+                  border-radius: 50%;
+                  width: 40px;
+                  height: 40px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: white;
+                  font-weight: bold;
+                  font-size: 14px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                ">${count}</div>`,
+                className: 'custom-cluster-icon',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20]
+              });
+            }}
+          >
+            {regions.data.map((region) => (
+              <Marker 
+                key={region.id} 
+                position={[region.latitude, region.longitude]} 
+                icon={createColoredIcon(region.status)}
+                status={region.status}
+              >
+                <Popup>
+                  <div>
+                    <h4>{region.region}</h4>
+                    <p><strong>Район:</strong> {region.district}</p>
+                    <p><strong>Диспетчер:</strong> {region.dispatcher}</p>
+                    <p><strong>Статус:</strong> <span style={{color: STATUS_COLORS[region.status]}}>{region.status}</span></p>
+                    <p><strong>ID:</strong> {region.id}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
         )}
         {rectangle && (
           <Rectangle bounds={rectangle} pathOptions={{ color: "blue" }} />
