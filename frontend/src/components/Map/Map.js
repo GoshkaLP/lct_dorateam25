@@ -1,5 +1,5 @@
 // Classes used by Leaflet to position controls
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   Rectangle,
@@ -11,6 +11,7 @@ import {
   Popup,
   useMapEvents,
   FeatureGroup,
+  Polyline,
 } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 
@@ -40,6 +41,15 @@ const STATUS_COLORS = {
   Зеленый: "#28a745", // Green
   Оранжевый: "#fd7e14", // Orange
   Желтый: "#F6C84E", // Yellow (matching original ITP_yellow)
+};
+
+// Status color mapping for lines
+const LINE_STATUS_COLORS = {
+  Зеленый: "#28a745", // Green
+  Оранжевый: "#fd7e14", // Orange
+  Желтый: "#F6C84E", // Yellow
+  Красный: "#dc3545", // Red
+  Синий: "#007bff", // Blue
 };
 
 // Removed hardcoded points - now using dynamic regions data
@@ -134,13 +144,73 @@ function ReactControlExample({
   selectedCrossingFilters,
   filterNames,
 }) {
-  // const { setRegions } = useData();
-  // Fetch regions data from API
-  const itpData = useFetch("http://5.129.195.176:8080/api/region/itp");
-  const mkdData = useFetch("http://5.129.195.176:8080/api/region/mkd");
+  const { itpFilters, itpData, setItpData } = useData();
+  // Fetch MKD data from API
+  const mkdData = useFetch("https://dora.team/api/region/mkd");
+  // Fetch Lines data from API
+  const linesData = useFetch("https://dora.team/api/region/lines");
 
-  console.log(itpData.data);
-  console.log(mkdData.data);
+  // Функция для загрузки ITP данных с фильтрами
+  const fetchITPData = useCallback(async (filters) => {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      // Добавляем только непустые параметры
+      if (filters.id) queryParams.append('id', filters.id);
+      if (filters.district) queryParams.append('district', filters.district);
+      if (filters.region) queryParams.append('region', filters.region);
+      if (filters.dispatcher) queryParams.append('dispatcher', filters.dispatcher);
+      if (filters.status && filters.status.length > 0) {
+        filters.status.forEach(status => queryParams.append('status', status));
+      }
+
+      const url = `https://dora.team/api/region/itp?${queryParams.toString()}`;
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const data = await response.json();
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching ITP data:', error);
+      return [];
+    }
+  }, []);
+
+  // Эффект для загрузки ITP данных при изменении фильтров
+  useEffect(() => {
+    const loadData = async () => {
+      setItpData(prev => ({ ...prev, loading: true }));
+      try {
+        const data = await fetchITPData(itpFilters);
+        setItpData({ data, loading: false, error: null });
+      } catch (error) {
+        setItpData({ data: [], loading: false, error: error.message });
+      }
+    };
+    
+    loadData();
+  }, [itpFilters, fetchITPData]);
+
+  // Начальная загрузка данных при монтировании компонента
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setItpData(prev => ({ ...prev, loading: true }));
+      try {
+        const data = await fetchITPData({});
+        setItpData({ data, loading: false, error: null });
+      } catch (error) {
+        console.error('Error loading initial ITP data:', error);
+        setItpData({ data: [], loading: false, error: error.message });
+      }
+    };
+    
+    loadInitialData();
+  }, [fetchITPData]);
+
   // setRegions(regions);
   const dataKey = useForceUpdateGeoJson(data);
   // Removed unused state variables
@@ -148,7 +218,17 @@ function ReactControlExample({
   const [activeLayers, setActiveLayers] = useState({
     itp: true,
     mkd: false,
+    lines: false,
   });
+  const [selectedLineId, setSelectedLineId] = useState(null);
+
+  // Сортируем данные линий по layout_index от большей цифры к меньшей
+  const sortedLinesData = useMemo(() => {
+    if (!linesData.data || !Array.isArray(linesData.data)) {
+      return [];
+    }
+    return [...linesData.data].sort((a, b) => (a.layout_index || 0) - (b.layout_index || 0));
+  }, [linesData.data]);
 
   const handleLayerToggle = (layer) => {
     setActiveLayers((prev) => ({
@@ -230,7 +310,6 @@ function ReactControlExample({
     const { layerType, layer } = e;
     if (layerType === "rectangle") {
       const bounds = layer.getBounds();
-      console.log("Rectangle created with bounds:", bounds);
       setRectangle(bounds);
       // Удаляем исходный прямоугольник, так как мы будем рендерить его через компонент Rectangle
       e.layer.remove();
@@ -239,6 +318,10 @@ function ReactControlExample({
 
   const handleDeleteRectangle = () => {
     setRectangle(null);
+  };
+
+  const handleLineClick = (lineId) => {
+    setSelectedLineId(selectedLineId === lineId ? null : lineId);
   };
 
   return (
@@ -435,6 +518,53 @@ function ReactControlExample({
             ))}
           </MarkerClusterGroup>
         )}
+
+        {/* Render Lines as polylines */}
+        {activeLayers.lines && sortedLinesData && sortedLinesData.length > 0 && sortedLinesData.map((line) => {
+          // Проверяем наличие необходимых данных
+          if (!line || !line.coords || line.coords.length < 2) {
+            console.warn('Invalid line data:', line);
+            return null;
+          }
+
+          // Преобразуем координаты в формат [lat, lng]
+          const positions = line.coords.map(coord => [coord.latitude, coord.longitude]);
+          
+          // Получаем цвет на основе статуса
+          const lineColor = LINE_STATUS_COLORS[line.status] || "#6c757d";
+          
+          // Определяем, выбрана ли линия
+          const isSelected = selectedLineId === line.id;
+
+          return (
+            <Polyline
+              key={line.id}
+              positions={positions}
+              pathOptions={{
+                color: lineColor,
+                weight: isSelected ? 8 : 4, // Увеличиваем толщину для выбранной линии
+                opacity: 1,
+                zIndex: line.layout_index, // Выбранная линия поверх остальных
+              }}
+              eventHandlers={{
+                click: () => handleLineClick(line.id),
+              }}
+            >
+              <Popup>
+                <div>
+                  <h4>Участок {line.id}</h4>
+                  <p><strong>ID:</strong> {line.id}</p>
+                  <p><strong>ITP ID:</strong> {line.itp_id || 'Не указан'}</p>
+                  <p><strong>Статус:</strong> <span style={{color: lineColor}}>{line.status || 'Неизвестно'}</span></p>
+                  {isSelected && (
+                    <p style={{color: '#007bff', fontWeight: 'bold'}}>✓ Выбрано</p>
+                  )}
+                </div>
+              </Popup>
+            </Polyline>
+          );
+        })}
+
         {rectangle && (
           <Rectangle bounds={rectangle} pathOptions={{ color: "blue" }} />
         )}
@@ -449,3 +579,4 @@ function ReactControlExample({
 }
 
 export default ReactControlExample;
+

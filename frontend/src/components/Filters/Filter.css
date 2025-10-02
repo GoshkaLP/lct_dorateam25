@@ -12,6 +12,10 @@
   box-shadow: none !important;
   padding: 0 !important;
 }
+.filters .MuiCheckbox-root {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
 
 .filters-card {
   height: 100%;
@@ -135,4 +139,13 @@
 
 .by-point-coords {
   max-width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

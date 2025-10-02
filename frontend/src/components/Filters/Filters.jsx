@@ -33,8 +33,9 @@ function Filters({
   coordinatesPoint,
   setSelectedCrossingFilters,
   setFilterNames,
+  expanded
 }) {
-  const { setTestData } = useData();
+  const { setTestData, setRegions, setItpFilters } = useData();
   const [localData, setLocalData] = useState(null);
   const [byPoint, setByPoint] = useState(false);
   const [range, setRange] = useState(false);
@@ -42,6 +43,12 @@ function Filters({
     itp: true,
     mkd: true,
   });
+  const [dispatcherSearchValue, setDispatcherSearchValue] = useState('');
+  const [filteredDispatchers, setFilteredDispatchers] = useState([]);
+  const [districtSearchValue, setDistrictSearchValue] = useState('');
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [regionSearchValue, setRegionSearchValue] = useState('');
+  const [filteredRegions, setFilteredRegions] = useState([]);
   // Date Range Picker state
   const [periodType, setPeriodType] = useState("месяц");
   const [dateRange, setDateRange] = useState([0, 5]); // default: 6 месяцев
@@ -112,8 +119,10 @@ function Filters({
   // const cadastrals = useFetch(
   //   "http://178.20.44.143:8080/navigation/filters/cadastrals"
   // );
-  const districts = useFetch("http://5.129.195.176:8080/api/region/districts");
-  const regions = useFetch("http://5.129.195.176:8080/api/region/regions");
+  const districts = useFetch("https://dora.team/api/region/districts");
+  const regions = useFetch("https://dora.team/api/region/regions");
+  const statuses = useFetch("https://dora.team/api/region/statuses");
+  const dispatchers = useFetch("https://dora.team/api/region/dispatchers");
   // const crossingFilters = useFetch(
   //   "http://178.20.44.143:8080/crossing/filters/"
   // );
@@ -133,6 +142,15 @@ function Filters({
   const [filterValues, setFilterValues] = useState({});
   const [showToolTip, setShowToolTip] = useState(null);
   const refSetTimeout = useRef();
+  
+  // Состояние для выбранных фильтров
+  const [selectedFilters, setSelectedFilters] = useState({
+    id: '',
+    district: '',
+    region: '',
+    dispatcher: '',
+    status: []
+  });
 
   const onMouseEnterHandler = (option) => {
     refSetTimeout.current = setTimeout(() => {
@@ -164,6 +182,12 @@ function Filters({
     }
   };
 
+  // Функция для обновления параметров фильтрации ITP
+  const updateITPData = (filters) => {
+    // Сохраняем параметры фильтрации в контекст
+    setItpFilters(filters);
+  };
+
   const formik = useFormik({
     initialValues: {
       [FieldNames.areas]: [],
@@ -171,8 +195,22 @@ function Filters({
       [FieldNames.cadastrals]: [],
       [FieldNames.districts]: [],
       [FieldNames.crossingFilters]: {},
+      dispatcher: [],
+      statuses: [],
     },
     onSubmit: (values) => {
+      const filtersData = {
+        id: values[FieldNames.cadastrals]?.[0] || '', // ID объекта
+        district: values[FieldNames.districts]?.[0] || '', // Округ
+        region: values[FieldNames.addresses]?.[0] || '', // Район (из адресов)
+        dispatcher: values.dispatcher?.[0] || '', // Диспетчер
+        status: values.statuses || [] // Статусы
+      };
+
+      // Обновляем данные ITP с фильтрами
+      updateITPData(filtersData);
+
+      // Сохраняем старую логику для совместимости
       const data = byPoint
         ? {
             ...values,
@@ -183,27 +221,25 @@ function Filters({
             },
           }
         : values;
-      // setSelectedCrossingFilters(data.crossingFilters);
+      
       const tmp = {};
-      // crossingFiltersData?.map.forEach((value, key) => {
-      //   tmp[value.key] = key;
-      // });
       setFilterNames(tmp);
-      try {
-        fetch("http://178.20.44.143:8080/polygons/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }).then((res) =>
-          res.json().then((d) => {
-            setLocalData(d);
-          })
-        );
-      } catch (error) {
-        console.error("Error: ", error);
-      }
+      
+      // try {
+      //   fetch("https://dora.team/api/region/polygons", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(data),
+      //   }).then((res) =>
+      //     res.json().then((d) => {
+      //       setLocalData(d);
+      //     })
+      //   );
+      // } catch (error) {
+      //   console.error("Error: ", error);
+      // }
     },
   });
 
@@ -216,6 +252,45 @@ function Filters({
   useEffect(() => {
     setTestData(localData);
   }, [localData]);
+
+  // Фильтрация диспетчеров по введенному тексту
+  useEffect(() => {
+    if (dispatcherSearchValue && Array.isArray(dispatchers.data)) {
+      const filtered = dispatchers.data.filter(dispatcher => {
+        const dispatcherValue = dispatcher.value || dispatcher;
+        return dispatcherValue.toLowerCase().includes(dispatcherSearchValue.toLowerCase());
+      });
+      setFilteredDispatchers(filtered);
+    } else {
+      setFilteredDispatchers([]);
+    }
+  }, [dispatcherSearchValue, dispatchers.data]);
+
+  // Фильтрация округов по введенному тексту
+  useEffect(() => {
+    if (districtSearchValue && Array.isArray(districts.data)) {
+      const filtered = districts.data.filter(district => {
+        const districtValue = district.value || district;
+        return districtValue.toLowerCase().includes(districtSearchValue.toLowerCase());
+      });
+      setFilteredDistricts(filtered);
+    } else {
+      setFilteredDistricts([]);
+    }
+  }, [districtSearchValue, districts.data]);
+
+  // Фильтрация районов по введенному тексту
+  useEffect(() => {
+    if (regionSearchValue && Array.isArray(regions.data)) {
+      const filtered = regions.data.filter(region => {
+        const regionValue = region.value || region;
+        return regionValue.toLowerCase().includes(regionSearchValue.toLowerCase());
+      });
+      setFilteredRegions(filtered);
+    } else {
+      setFilteredRegions([]);
+    }
+  }, [regionSearchValue, regions.data]);
 
   const handleCheckboxChange = (option, key, isChecked) => {
     setFilterValues((prevValues) => ({
@@ -240,158 +315,36 @@ function Filters({
   };
 
   const card = (
-    <React.Fragment>
+    <React.Fragment >
       <Divider style={{ marginBottom: "20px" }} />
       <form
         onSubmit={formik.handleSubmit}
         className="form"
-        style={{ width: "100%", padding: 0 }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            formik.handleSubmit();
+          }
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            formik.resetForm();
+          }
+        }}
+        style={{ 
+          width: "100%", 
+          padding: 0,
+          marginBottom: '50px',
+          display: "flex",
+          flexDirection: "column",
+          height: "100%"
+        }}
       >
-        <Accordion
-          style={{
-            borderRadius: "20px",
-            margin: 0,
-            width: "100%",
-            // "&::before": { display: "none" },
-          }}
-        >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-          >
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
-                Тип объекта
-              </div>
-            </Stack>
-          </AccordionSummary>
-          <AccordionDetails>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.itp}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        itp: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="ИТП"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.itp ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.mkd}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        mkd: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="МКД"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.mkd ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.uspd}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        uspd: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="УСПД"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.uspd ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.odpu_gvs}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        odpu_gvs: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="ОДПУ ГВС"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.odpu_gvs ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-            </FormGroup>
-          </AccordionDetails>
-        </Accordion>
+        <div style={{ 
+          flex: 1, 
+          overflowY: "auto", 
+          paddingBottom: "20px" 
+        }}>
 
-        <Divider style={{ margin: "20px 0 20px 0" }} />
         <Accordion
           style={{
             borderRadius: "20px",
@@ -403,6 +356,11 @@ function Filters({
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+              margin: 0,
+              }
+            }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
@@ -410,128 +368,57 @@ function Filters({
               </div>
             </Stack>
           </AccordionSummary>
-          <AccordionDetails>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.оранжевый}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        оранжевый: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="Оранжевый"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.оранжевый ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.жёлтый}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        жёлтый: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="Жёлтый"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.жёлтый ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.Зёленый}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        Зёленый: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="Зёленый"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.Зёленый ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.unknown}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        unknown: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="Неизвестный"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.unknown ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
+          <AccordionDetails 
+          sx={{
+              marginTop: '20px',
+          }}
+          >
+            <FormGroup style={{gap: '10px'}}>
+              {statuses.loading ? (
+                <div>Загрузка статусов...</div>
+              ) : Array.isArray(statuses.data) ? (
+                statuses.data.map((status, index) => {
+                  const statusValue = status.value || status;
+                  const isChecked = formik.values.statuses?.includes(statusValue) || false;
+                  
+                  return (
+                    <FormControlLabel
+                      key={index}
+                      control={
+                        <Checkbox
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const currentStatuses = formik.values.statuses || [];
+                            const newStatuses = e.target.checked
+                              ? [...currentStatuses, statusValue]
+                              : currentStatuses.filter(s => s !== statusValue);
+                            formik.setFieldValue('statuses', newStatuses);
+                          }}
+                          sx={{
+                            color: "#9E9E9E",
+                            "&.Mui-checked": {
+                              color: "#0D4CD3",
+                            },
+                          }}
+                        />
+                      }
+                      labelPlacement="start"
+                      label={statusValue}
+                      sx={{
+                        margin: 0,
+                        justifyContent: "space-between",
+                        "& .MuiFormControlLabel-label": {
+                          color: isChecked ? "inherit" : "#9E9E9E",
+                          transition: "color 0.2s",
+                          fontSize: '14px',
+                        },
+                      }}
+                    />
+                  );
+                })
+              ) : (
+                <div>Нет доступных статусов</div>
+              )}
             </FormGroup>
           </AccordionDetails>
         </Accordion>
@@ -547,6 +434,11 @@ function Filters({
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel-id-content"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+              margin: 0,
+              }
+            }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
@@ -554,22 +446,51 @@ function Filters({
               </div>
             </Stack>
           </AccordionSummary>
-          <AccordionDetails>
-            <CadastralsField
-              value={""}
-              loading={false}
-              cadastrals={[]}
-              options={[]}
-            />
+          <AccordionDetails style={{display: 'flex'}}>
+             <TextField
+               fullWidth
+               value={formik.values[FieldNames.cadastrals]?.[0] ?? ''}
+               onChange={(e) => {
+                 formik.setFieldValue(FieldNames.cadastrals, [e.target.value]);
+               }}
+               sx={{
+                marginTop: '10px',
+                padding: 0,
+                 width: '100%',
+                 '& .MuiInputBase-root': {
+                   height: '28px',
+                   borderRadius: '50px',
+                   backgroundColor: '#F9F7F7',
+                   border: 'none', // явно убираем border
+                   '& fieldset': {
+                     border: 'none', // убираем стандартную рамку outlined-варианта
+                   },
+                   '&:hover fieldset': {
+                     border: 'none',
+                   },
+                   '&.Mui-focused fieldset': {
+                     border: 'none',
+                   },
+                 },
+               }}
+             />
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
 
         {/* Date Range Picker "Период наблюдения" */}
-        <Accordion style={{ borderRadius: "20px", margin: 0, width: "100%" }}>
+          <Accordion style={{ borderRadius: "20px", margin: 0, width: "100%" }} 
+          disabled={true}
+          >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel-period-content"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+                // если Disabled
+                marginLeft: "10px",
+              },
+            }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
@@ -632,6 +553,11 @@ function Filters({
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel-dispatcher-content"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+              margin: 0,
+              }
+            }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
@@ -641,26 +567,83 @@ function Filters({
           </AccordionSummary>
           <AccordionDetails>
             {/* Autocomplete с чекбоксами */}
-            <Autocomplete
-              multiple
-              options={["Иванов", "Петров", "Сидоров", "Смирнов"]}
-              disableCloseOnSelect
-              getOptionLabel={(option) => option}
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
-                  {option}
-                </li>
+                          <TextField
+                fullWidth
+               placeholder="Введите диспетчера"
+               value={dispatcherSearchValue ?? ''}
+               onChange={(e) => {
+                  setDispatcherSearchValue(e.target.value);
+                }}
+                sx={{
+                 marginTop: '10px',
+                 padding: 0,
+                  width: '100%',
+                  '& .MuiInputBase-root': {
+                    height: '28px',
+                    borderRadius: '50px',
+                    backgroundColor: '#F9F7F7',
+                    border: 'none', // явно убираем border
+                    '& fieldset': {
+                      border: 'none', // убираем стандартную рамку outlined-варианта
+                    },
+                    '&:hover fieldset': {
+                      border: 'none',
+                    },
+                    '&.Mui-focused fieldset': {
+                      border: 'none',
+                    },
+                  },
+                }}
+              />
+              
+              {/* Список результатов поиска диспетчеров */}
+              {filteredDispatchers.length > 0 && (
+                <Box sx={{ mt: 1, maxHeight: '200px', overflowY: 'auto' }}>
+                  <FormGroup style={{ gap: '5px' }}>
+                    {filteredDispatchers.map((dispatcher, index) => {
+                      const dispatcherValue = dispatcher.value || dispatcher;
+                      const isSelected = formik.values.dispatcher?.includes(dispatcherValue) || false;
+                      
+                      return (
+                        <FormControlLabel
+                          key={index}
+                          labelPlacement="start"
+                          control={
+                            <Checkbox
+                              checked={isSelected}
+                              onChange={(e) => {
+                                const currentDispatchers = formik.values.dispatcher || [];
+                                const newDispatchers = e.target.checked
+                                  ? [...currentDispatchers, dispatcherValue]
+                                  : currentDispatchers.filter(d => d !== dispatcherValue);
+                                formik.setFieldValue('dispatcher', newDispatchers);
+                              }}
+                              sx={{
+                                color: "#9E9E9E",
+                                "&.Mui-checked": {
+                                  color: "#0D4CD3",
+                                },
+                              }}
+                            />
+                          }
+                          label={dispatcherValue}
+                          sx={{
+                            margin: 0,
+                            paddingTop: 0,
+                            paddingBottom: 0,
+                            justifyContent: "space-between",
+                            "& .MuiFormControlLabel-label": {
+                              color: isSelected ? "inherit" : "#9E9E9E",
+                              transition: "color 0.2s",
+                              fontSize: '14px',
+                            },
+                          }}
+                        />
+                      );
+                    })}
+                  </FormGroup>
+                </Box>
               )}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Выберите диспетчера"
-                  placeholder="Диспетчер"
-                />
-              )}
-              sx={{ width: "100%" }}
-            />
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
@@ -669,6 +652,11 @@ function Filters({
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel-district-content"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+              margin: 0,
+              }
+            }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
@@ -677,19 +665,83 @@ function Filters({
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            <FormGroup>
-              {Array.isArray(districts.data)
-                ? districts.data.map((okrug) => (
-                    <FormControlLabel
-                      key={okrug.value}
-                      control={<Checkbox defaultChecked />}
-                      labelPlacement="start"
-                      label={okrug.value}
-                      sx={{ margin: 0, justifyContent: "space-between" }}
-                    />
-                  ))
-                : null}
-            </FormGroup>
+            <TextField
+              fullWidth
+              placeholder="Введите округ"
+              value={districtSearchValue ?? ''}
+              onChange={(e) => {
+                setDistrictSearchValue(e.target.value);
+              }}
+              sx={{
+                marginTop: '10px',
+                padding: 0,
+                width: '100%',
+                '& .MuiInputBase-root': {
+                  height: '28px',
+                  borderRadius: '50px',
+                  backgroundColor: '#F9F7F7',
+                  border: 'none',
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                  '&:hover fieldset': {
+                    border: 'none',
+                  },
+                  '&.Mui-focused fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
+            />
+            
+            {/* Список результатов поиска округов */}
+            {filteredDistricts.length > 0 && (
+              <Box sx={{ mt: 1, maxHeight: '200px', overflowY: 'auto' }}>
+                <FormGroup style={{ gap: '5px' }}>
+                  {filteredDistricts.map((district, index) => {
+                    const districtValue = district.value || district;
+                    const isSelected = formik.values[FieldNames.districts]?.includes(districtValue) || false;
+                    
+                    return (
+                      <FormControlLabel
+                        key={index}
+                        labelPlacement="start"
+                        control={
+                          <Checkbox
+                            checked={isSelected}
+                            onChange={(e) => {
+                              const currentDistricts = formik.values[FieldNames.districts] || [];
+                              const newDistricts = e.target.checked
+                                ? [...currentDistricts, districtValue]
+                                : currentDistricts.filter(d => d !== districtValue);
+                              formik.setFieldValue(FieldNames.districts, newDistricts);
+                            }}
+                            sx={{
+                              color: "#9E9E9E",
+                              "&.Mui-checked": {
+                                color: "#0D4CD3",
+                              },
+                            }}
+                          />
+                        }
+                        label={districtValue}
+                        sx={{
+                          margin: 0,
+                          paddingTop: 0,
+                          paddingBottom: 0,
+                          justifyContent: "space-between",
+                          "& .MuiFormControlLabel-label": {
+                            color: isSelected ? "inherit" : "#9E9E9E",
+                            transition: "color 0.2s",
+                            fontSize: '14px',
+                          },
+                        }}
+                      />
+                    );
+                  })}
+                </FormGroup>
+              </Box>
+            )}
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
@@ -699,6 +751,11 @@ function Filters({
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel-rayon-content"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+              margin: 0,
+              }
+            }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
@@ -707,32 +764,83 @@ function Filters({
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            {/* Autocomplete с чекбоксами для районов из API */}
-            <Autocomplete
-              multiple
-              options={
-                Array.isArray(regions.data)
-                  ? regions.data.map((r) => r.value || r)
-                  : []
-              }
-              disableCloseOnSelect
-              getOptionLabel={(option) => option}
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
-                  {option}
-                </li>
-              )}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Выберите район"
-                  placeholder="Район"
-                />
-              )}
-              sx={{ width: "100%" }}
-              loading={regions.loading}
+            <TextField
+              fullWidth
+              placeholder="Введите район"
+              value={regionSearchValue ?? ''}
+              onChange={(e) => {
+                setRegionSearchValue(e.target.value);
+              }}
+              sx={{
+                marginTop: '10px',
+                padding: 0,
+                width: '100%',
+                '& .MuiInputBase-root': {
+                  height: '28px',
+                  borderRadius: '50px',
+                  backgroundColor: '#F9F7F7',
+                  border: 'none',
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                  '&:hover fieldset': {
+                    border: 'none',
+                  },
+                  '&.Mui-focused fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
             />
+            
+            {/* Список результатов поиска районов */}
+            {filteredRegions.length > 0 && (
+              <Box sx={{ mt: 1, maxHeight: '200px', overflowY: 'auto' }}>
+                <FormGroup style={{ gap: '5px' }}>
+                  {filteredRegions.map((region, index) => {
+                    const regionValue = region.value || region;
+                    const isSelected = formik.values[FieldNames.addresses]?.includes(regionValue) || false;
+                    
+                    return (
+                      <FormControlLabel
+                        key={index}
+                        labelPlacement="start"
+                        control={
+                          <Checkbox
+                            checked={isSelected}
+                            onChange={(e) => {
+                              const currentRegions = formik.values[FieldNames.addresses] || [];
+                              const newRegions = e.target.checked
+                                ? [...currentRegions, regionValue]
+                                : currentRegions.filter(r => r !== regionValue);
+                              formik.setFieldValue(FieldNames.addresses, newRegions);
+                            }}
+                            sx={{
+                              color: "#9E9E9E",
+                              "&.Mui-checked": {
+                                color: "#0D4CD3",
+                              },
+                            }}
+                          />
+                        }
+                        label={regionValue}
+                        sx={{
+                          margin: 0,
+                          paddingTop: 0,
+                          paddingBottom: 0,
+                          justifyContent: "space-between",
+                          "& .MuiFormControlLabel-label": {
+                            color: isSelected ? "inherit" : "#9E9E9E",
+                            transition: "color 0.2s",
+                            fontSize: '14px',
+                          },
+                        }}
+                      />
+                    );
+                  })}
+                </FormGroup>
+              </Box>
+            )}
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
@@ -769,7 +877,93 @@ function Filters({
             />
           </AccordionDetails>
         </Accordion>
+        </div>
       </form>
+        {/* Фиксированные кнопки управления фильтрами */}
+        {expanded && (
+        <Box 
+        className="submit-animate-container"
+        sx={{ 
+          flex: 1,
+          display: 'flex', 
+          position: 'absolute',
+          left: '16px',
+          width: 'calc(100% - 32px)',
+          bottom: '1px',
+          gap: 2, 
+          justifyContent: 'space-between',
+          padding: '16px 0',
+          backgroundColor: '#fff',
+          zIndex: 1,
+          animation: 'fadeIn 0.5s ease-in-out forwards',
+        }}>
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            onClick={() => {
+              formik.handleSubmit();
+            }}
+            sx={{
+              minWidth: 120,
+              height: '36px',
+              backgroundColor: '#0D4CD3',
+              borderRadius: '50px',
+              fontFamily: "Montserrat, sans-serif",
+              fontWeight: 700,
+              '&:hover': {
+                backgroundColor: '#0B3BA8',
+              },
+            }}
+          >
+            Применить
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={() => {
+              formik.resetForm();
+              setFilterValues({});
+              setCheckedState({
+                itp: true,
+                mkd: true,
+              });
+              setDateRange([0, 5]);
+              setPeriodType("месяц");
+              setDispatcherSearchValue('');
+              setFilteredDispatchers([]);
+              setDistrictSearchValue('');
+              setFilteredDistricts([]);
+              setRegionSearchValue('');
+              setFilteredRegions([]);
+              // Сбрасываем выбранные фильтры
+              setSelectedFilters({
+                id: '',
+                district: '',
+                region: '',
+                dispatcher: '',
+                status: []
+              });
+            }}
+            sx={{
+              minWidth: 120,
+              borderColor: '#9CA3AF',
+              color: '#9CA3AF',
+              height: '36px',
+              borderRadius: '50px',
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 700,
+              '&:hover': {
+                borderColor: '#0D4CD3',
+                backgroundColor: 'rgba(13, 76, 211, 0.04)',
+              },
+            }}
+          >
+            Сбросить всё
+          </Button>
+        </Box>
+      )}
+      <div style={{ position: 'relative' }} id='filters-block-wrapper'/>
     </React.Fragment>
   );
 

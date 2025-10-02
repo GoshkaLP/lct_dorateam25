@@ -6,15 +6,23 @@ export function DataProvider({ children }) {
   const [testData, setTestData] = useState(null);
   const [apiVersion, setApiVersion] = useState(null);
   const [regions, setRegions] = useState([]);
+  const [itpFilters, setItpFilters] = useState({});
+  const [itpData, setItpData] = useState({ data: [], loading: false, error: null });
 
-  const contextValue = useMemo(() => ({
-    testData,
-    setTestData,
-    apiVersion,
-    setApiVersion,
-    regions,
-    setRegions,
-  }), [testData, apiVersion, regions]);
+  const contextValue = useMemo(() => {
+    return {
+      testData,
+      setTestData,
+      apiVersion,
+      setApiVersion,
+      regions,
+      setRegions,
+      itpFilters,
+      setItpFilters,
+      itpData,
+      setItpData,
+    };
+  }, [testData, apiVersion, regions, itpFilters, itpData]);
 
   return (
     <DataContext.Provider value={contextValue}>

@@ -8,7 +8,6 @@ function MessagePopup(props) {
 
   const handlePopupClose = () => {
     setIsVisible(false);
-    console.log(isVisible);
   }
 
   return (

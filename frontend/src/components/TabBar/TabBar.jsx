@@ -2,6 +2,7 @@ import React from 'react';
 import './TabBar.css';
 import houseIcon from '../../images/maps-markers/house_icon.svg';
 import itpIcon from '../../images/maps-markers/itp_icon.svg';
+import AltRouteIcon from '@mui/icons-material/AltRoute';
 
 const TabBar = ({ activeLayers, onLayerToggle }) => {
   return (
@@ -16,7 +17,15 @@ const TabBar = ({ activeLayers, onLayerToggle }) => {
           </div>
           <span className="tab-label">ИТП</span>
         </button>
-        
+                <button
+          className={`tab-button ${activeLayers.lines ? 'active' : ''}`}
+          onClick={() => onLayerToggle('lines')}
+        >
+          <div className="tab-icon lines-icon" style={{rotate: '90deg'}}>
+          <AltRouteIcon/>
+          </div>
+          {/* <span className="tab-label">Участки</span> */}
+        </button>
         <button
           className={`tab-button ${activeLayers.mkd ? 'active' : ''}`}
           onClick={() => onLayerToggle('mkd')}
@@ -26,6 +35,8 @@ const TabBar = ({ activeLayers, onLayerToggle }) => {
           </div>
           <span className="tab-label">МКД</span>
         </button>
+        
+
       </div>
     </div>
   );

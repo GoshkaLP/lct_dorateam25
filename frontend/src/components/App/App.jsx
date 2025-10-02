@@ -15,7 +15,7 @@ function AppContent() {
 
   return (
     <div className="app">
-      {/* {!isAuth ? <Navigate to="/auth" replace /> : <Header />} */}
+      {!isAuth ? <Navigate to="/auth" replace /> : <Header />}
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         {MAIN_HEADER_MENU.map((item) => (
