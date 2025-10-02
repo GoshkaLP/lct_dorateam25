@@ -134,6 +134,7 @@ function ReactControlExample({
   const regions = useFetch("http://5.129.195.176:8080/api/region");
 
   console.log(regions.data);
+  // setRegions(regions);
   const dataKey = useForceUpdateGeoJson(data);
   // Removed unused state variables
   const [rectangle, setRectangle] = useState(null);
