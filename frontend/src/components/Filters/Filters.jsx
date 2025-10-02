@@ -34,7 +34,7 @@ function Filters({
   setSelectedCrossingFilters,
   setFilterNames,
 }) {
-  const { setTestData } = useData();
+  const { setTestData, setRegions, setItpFilters } = useData();
   const [localData, setLocalData] = useState(null);
   const [byPoint, setByPoint] = useState(false);
   const [range, setRange] = useState(false);
@@ -114,6 +114,8 @@ function Filters({
   // );
   const districts = useFetch("http://5.129.195.176:8080/api/region/districts");
   const regions = useFetch("http://5.129.195.176:8080/api/region/regions");
+  const statuses = useFetch("http://5.129.195.176:8080/api/region/statuses");
+  const dispatchers = useFetch("http://5.129.195.176:8080/api/region/dispatchers");
   // const crossingFilters = useFetch(
   //   "http://178.20.44.143:8080/crossing/filters/"
   // );
@@ -133,6 +135,15 @@ function Filters({
   const [filterValues, setFilterValues] = useState({});
   const [showToolTip, setShowToolTip] = useState(null);
   const refSetTimeout = useRef();
+  
+  // Состояние для выбранных фильтров
+  const [selectedFilters, setSelectedFilters] = useState({
+    id: '',
+    district: '',
+    region: '',
+    dispatcher: '',
+    status: []
+  });
 
   const onMouseEnterHandler = (option) => {
     refSetTimeout.current = setTimeout(() => {
@@ -164,6 +175,14 @@ function Filters({
     }
   };
 
+  // Функция для обновления параметров фильтрации ITP
+  const updateITPData = (filters) => {
+    console.log('Updating ITP filters:', filters);
+    
+    // Сохраняем параметры фильтрации в контекст
+    setItpFilters(filters);
+  };
+
   const formik = useFormik({
     initialValues: {
       [FieldNames.areas]: [],
@@ -171,8 +190,26 @@ function Filters({
       [FieldNames.cadastrals]: [],
       [FieldNames.districts]: [],
       [FieldNames.crossingFilters]: {},
+      dispatcher: [],
+      statuses: [],
     },
     onSubmit: (values) => {
+      console.log('Form values:', values);
+      
+      const filtersData = {
+        id: values[FieldNames.cadastrals]?.[0] || '', // ID объекта
+        district: values[FieldNames.districts]?.[0] || '', // Округ
+        region: values[FieldNames.addresses]?.[0] || '', // Район (из адресов)
+        dispatcher: values.dispatcher?.[0] || '', // Диспетчер
+        status: values.statuses || [] // Статусы
+      };
+
+      console.log('Final filters data:', filtersData);
+      
+      // Обновляем данные ITP с фильтрами
+      updateITPData(filtersData);
+
+      // Сохраняем старую логику для совместимости
       const data = byPoint
         ? {
             ...values,
@@ -183,27 +220,25 @@ function Filters({
             },
           }
         : values;
-      // setSelectedCrossingFilters(data.crossingFilters);
+      
       const tmp = {};
-      // crossingFiltersData?.map.forEach((value, key) => {
-      //   tmp[value.key] = key;
-      // });
       setFilterNames(tmp);
-      try {
-        fetch("http://178.20.44.143:8080/polygons/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }).then((res) =>
-          res.json().then((d) => {
-            setLocalData(d);
-          })
-        );
-      } catch (error) {
-        console.error("Error: ", error);
-      }
+      
+      // try {
+      //   fetch("http://5.129.195.176:8080/api/region/polygons", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(data),
+      //   }).then((res) =>
+      //     res.json().then((d) => {
+      //       setLocalData(d);
+      //     })
+      //   );
+      // } catch (error) {
+      //   console.error("Error: ", error);
+      // }
     },
   });
 
@@ -247,7 +282,7 @@ function Filters({
         className="form"
         style={{ width: "100%", padding: 0 }}
       >
-        <Accordion
+        {/* <Accordion
           style={{
             borderRadius: "20px",
             margin: 0,
@@ -390,8 +425,8 @@ function Filters({
             </FormGroup>
           </AccordionDetails>
         </Accordion>
+        <Divider style={{ margin: "20px 0 20px 0" }} /> */}
 
-        <Divider style={{ margin: "20px 0 20px 0" }} />
         <Accordion
           style={{
             borderRadius: "20px",
@@ -411,128 +446,35 @@ function Filters({
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.оранжевый}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        оранжевый: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="Оранжевый"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.оранжевый ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.жёлтый}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        жёлтый: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="Жёлтый"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.жёлтый ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.Зёленый}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        Зёленый: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="Зёленый"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.Зёленый ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    defaultChecked
-                    checked={checkedState.unknown}
-                    onChange={(e) =>
-                      setCheckedState((prev) => ({
-                        ...prev,
-                        unknown: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: "#9E9E9E",
-                      "&.Mui-checked": {
-                        color: "#0D4CD3",
-                      },
-                    }}
-                  />
-                }
-                labelPlacement="start"
-                label="Неизвестный"
-                sx={{
-                  margin: 0,
-                  justifyContent: "space-between",
-                  "& .MuiFormControlLabel-label": {
-                    color: checkedState.unknown ? "inherit" : "#9E9E9E",
-                    transition: "color 0.2s",
-                  },
-                }}
-              />
-            </FormGroup>
+            <Autocomplete
+              multiple
+              options={
+                statuses.loading ? [] : Array.isArray(statuses.data) 
+                  ? statuses.data.map((status) => status.value || status)
+                  : []
+              }
+              disableCloseOnSelect
+              getOptionLabel={(option) => option}
+              value={formik.values.statuses || []}
+              onChange={(event, newValue) => {
+                formik.setFieldValue('statuses', newValue);
+              }}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                  {option}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Выберите статусы"
+                  placeholder="Статус"
+                />
+              )}
+              sx={{ width: "100%" }}
+              loading={statuses.loading}
+            />
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
@@ -555,18 +497,24 @@ function Filters({
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            <CadastralsField
-              value={""}
-              loading={false}
-              cadastrals={[]}
-              options={[]}
+            <TextField
+              fullWidth
+              label="ID объекта"
+              placeholder="Введите ID объекта"
+              value={formik.values[FieldNames.cadastrals]?.[0] || ''}
+              onChange={(e) => {
+                formik.setFieldValue(FieldNames.cadastrals, [e.target.value]);
+              }}
+              sx={{ width: "100%" }}
             />
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
 
         {/* Date Range Picker "Период наблюдения" */}
-        <Accordion style={{ borderRadius: "20px", margin: 0, width: "100%" }}>
+          <Accordion style={{ borderRadius: "20px", margin: 0, width: "100%" }} 
+          disabled={true}
+          >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel-period-content"
@@ -643,9 +591,17 @@ function Filters({
             {/* Autocomplete с чекбоксами */}
             <Autocomplete
               multiple
-              options={["Иванов", "Петров", "Сидоров", "Смирнов"]}
+              options={
+                dispatchers.loading ? [] : Array.isArray(dispatchers.data) 
+                  ? dispatchers.data.map((dispatcher) => dispatcher.value || dispatcher)
+                  : []
+              }
               disableCloseOnSelect
               getOptionLabel={(option) => option}
+              value={formik.values.dispatcher || []}
+              onChange={(event, newValue) => {
+                formik.setFieldValue('dispatcher', newValue);
+              }}
               renderOption={(props, option, { selected }) => (
                 <li {...props}>
                   <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -660,6 +616,7 @@ function Filters({
                 />
               )}
               sx={{ width: "100%" }}
+              loading={dispatchers.loading}
             />
           </AccordionDetails>
         </Accordion>
@@ -677,19 +634,35 @@ function Filters({
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            <FormGroup>
-              {Array.isArray(districts.data)
-                ? districts.data.map((okrug) => (
-                    <FormControlLabel
-                      key={okrug.value}
-                      control={<Checkbox defaultChecked />}
-                      labelPlacement="start"
-                      label={okrug.value}
-                      sx={{ margin: 0, justifyContent: "space-between" }}
-                    />
-                  ))
-                : null}
-            </FormGroup>
+            <Autocomplete
+              multiple
+              options={
+                Array.isArray(districts.data)
+                  ? districts.data.map((d) => d.value || d)
+                  : []
+              }
+              disableCloseOnSelect
+              getOptionLabel={(option) => option}
+              value={formik.values[FieldNames.districts] || []}
+              onChange={(event, newValue) => {
+                formik.setFieldValue(FieldNames.districts, newValue);
+              }}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                  {option}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Выберите округ"
+                  placeholder="Округ"
+                />
+              )}
+              sx={{ width: "100%" }}
+              loading={districts.loading}
+            />
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
@@ -717,6 +690,10 @@ function Filters({
               }
               disableCloseOnSelect
               getOptionLabel={(option) => option}
+              value={formik.values[FieldNames.addresses] || []}
+              onChange={(event, newValue) => {
+                formik.setFieldValue(FieldNames.addresses, newValue);
+              }}
               renderOption={(props, option, { selected }) => (
                 <li {...props}>
                   <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -769,6 +746,57 @@ function Filters({
             />
           </AccordionDetails>
         </Accordion>
+        
+        {/* Кнопки управления фильтрами */}
+        <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'center' }}>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{
+              minWidth: 120,
+              backgroundColor: '#0D4CD3',
+              borderRadius: '50px',
+              '&:hover': {
+                backgroundColor: '#0B3BA8',
+              },
+            }}
+          >
+            Применить
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              formik.resetForm();
+              setFilterValues({});
+              setCheckedState({
+                itp: true,
+                mkd: true,
+              });
+              setDateRange([0, 5]);
+              setPeriodType("месяц");
+              // Сбрасываем выбранные фильтры
+              setSelectedFilters({
+                id: '',
+                district: '',
+                region: '',
+                dispatcher: '',
+                status: []
+              });
+            }}
+            sx={{
+              minWidth: 120,
+              borderColor: '#0D4CD3',
+              color: '#0D4CD3',
+              borderRadius: '50px',
+              '&:hover': {
+                borderColor: '#0D4CD3',
+                backgroundColor: 'rgba(13, 76, 211, 0.04)',
+              },
+            }}
+          >
+            Сбросить всё
+          </Button>
+        </Box>
       </form>
     </React.Fragment>
   );

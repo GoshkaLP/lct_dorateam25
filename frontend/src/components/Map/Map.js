@@ -142,7 +142,7 @@ function ReactControlExample({
   const fetchITPData = async (filters) => {
     try {
       const queryParams = new URLSearchParams();
-
+      
       // Добавляем только непустые параметры
       if (filters.id) queryParams.append('id', filters.id);
       if (filters.district) queryParams.append('district', filters.district);
@@ -154,15 +154,15 @@ function ReactControlExample({
 
       const url = `http://5.129.195.176:8080/api/region/itp?${queryParams.toString()}`;
       console.log('Fetching ITP data with URL:', url);
-
+      
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
+      
       const data = await response.json();
       console.log('ITP data received:', data);
-
+      
       return data;
     } catch (error) {
       console.error('Error fetching ITP data:', error);
