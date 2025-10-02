@@ -1,7 +1,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import Radio from "@mui/material/Radio";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import "./Filter.css";
 import { useFormik } from "formik";
@@ -391,6 +391,7 @@ function Filters({
             </FormGroup>
           </AccordionDetails>
         </Accordion>
+        {/* ...existing code... */}
         <Divider style={{ margin: "20px 0 20px 0" }} />
         <Accordion
           style={{
@@ -566,6 +567,7 @@ function Filters({
             />
           </AccordionDetails>
         </Accordion>
+        <Divider style={{ margin: "20px 0 20px 0" }} />
 
         {/* Date Range Picker "Период наблюдения" */}
         <Accordion style={{ borderRadius: "20px", margin: 0, width: "100%" }}>
@@ -628,242 +630,45 @@ function Filters({
             </Box>
           </AccordionDetails>
         </Accordion>
-      </form>
-      {/* Удалён неиспользуемый блок {false && (...)} для устранения ошибок компиляции */}
-      <Box className="form-container">
-        <div className="form-field-group">
-          {/* <label htmlFor="addresses">Поиск по адресу</label> */}
-          <AddressesField
-            value={formik.values.addresses}
-            onChange={(_, newValue) =>
-              formik.setFieldValue(FieldNames.addresses, newValue)
-            }
-            loading={addresses.loading}
-            addresses={addressesData.map}
-            options={addressesData.options}
-          />
-          {/* <label htmlFor="cadastrals">Поиск по кадастру</label> */}
-          <CadastralsField
-            value={formik.values.cadastrals}
-            onChange={(_, newValue) =>
-              formik.setFieldValue(FieldNames.cadastrals, newValue)
-            }
-            loading={cadastrals.loading}
-            cadastrals={cadastralData.map}
-            options={cadastralData.options}
-          />
-          {/* <label htmlFor="areas">Поиск по районам</label> */}
-          <DistrictField
-            values={formik.values.districts}
-            onChange={(_, newValue) => {
-              formik.setFieldValue(FieldNames.districts, newValue);
-            }}
-            options={districtData.options}
-            loading={districts.loading}
-            areas={districtData.map}
-          />
-          {/* <label htmlFor="areas">Поиск по округам</label> */}
-          <AreaField
-            values={formik.values.areas}
-            onChange={(_, newValue) => {
-              formik.setFieldValue(FieldNames.areas, newValue);
-            }}
-            options={areasData.options}
-            loading={areas.loading}
-            areas={areasData.map}
-          />
-        </div>
-
-        <div className="form-field-group">
-          <p className="form-field-group-title">Пересечения с территориями</p>
-          {crossingFiltersData.options.map((option) => {
-            const { description, key } = crossingFiltersData.map.get(option);
-            const isChecked = filterValues[option]?.isChecked || false;
-            const radioValue = filterValues[option]?.value;
-            return (
-              <div>
-                <label className="form-field-group-checkbox-label">
-                  <p className="form-field-group-text">{option}</p>
-                  {/* <p className="tooltip-question" onMouseEnter={() => onMouseEnterHandler(option)} onMouseLeave={onMouseLeaveHandler}>?</p> */}
-                  <Checkbox
-                    className="form-field-group-checkbox"
-                    checked={isChecked}
-                    onChange={(e) =>
-                      handleCheckboxChange(option, key, e.target.checked)
-                    }
-                  />
-                  {/* <input
-                                            type="checkbox"
-                                            onChange={(e) => handleCheckboxChange(option, key, e.target.checked)}
-                                            checked={isChecked}
-                                        /> */}
-                  {/* <div className="tooltip">
-                                            {showToolTip &&
-                                                <div className="tooltiptext">{description}</div>
-                                            }
-                                        </div> */}
-                </label>
-                {isChecked && (
-                  <div className="form-field-group-radios">
-                    <div>
-                      <label className="form-field-group-radio-label">
-                        <p className="form-field-group-text">
-                          Строгое исключение
-                        </p>
-                        <Radio
-                          size="small"
-                          className="form-field-group-radio"
-                          checked={radioValue === 0}
-                          onChange={() => handleRadioChange(option, key, 0)}
-                          value={0}
-                          name={option}
-                        />
-                        {/* <input 
-                                                        type="radio"
-                                                        name={option}
-                                                        value={0}    
-                                                        checked={radioValue === 0}
-                                                        onChange={() => handleRadioChange(option, key, 0)}
-                                                    /> */}
-                      </label>
-                    </div>
-                    <div>
-                      <label className="form-field-group-radio-label">
-                        <p className="form-field-group-text">
-                          Допустимое пересечение
-                        </p>
-                        <Radio
-                          size="small"
-                          className="form-field-group-radio"
-                          checked={radioValue === 1}
-                          onChange={() => handleRadioChange(option, key, 1)}
-                          value={1}
-                          name={option}
-                        />
-                        {/* <input 
-                                                        type="radio"
-                                                        name={option}
-                                                        value={1}    
-                                                        checked={radioValue  === 1}
-                                                        onChange={() => handleRadioChange(option, key, 1)}
-                                                    /> */}
-                      </label>
-                    </div>
-                    <div>
-                      <label className="form-field-group-radio-label">
-                        <p className="form-field-group-text">
-                          Отсутствие влияния
-                        </p>
-                        <Radio
-                          size="small"
-                          className="form-field-group-radio"
-                          checked={radioValue === 2}
-                          onChange={() => handleRadioChange(option, key, 2)}
-                          value={2}
-                          name={option}
-                        />
-                        {/* <input 
-                                                        type="radio"
-                                                        name={option}
-                                                        value={2}    
-                                                        checked={radioValue === 2}
-                                                        onChange={() => handleRadioChange(option, key, 2)}
-                                                    /> */}
-                      </label>
-                    </div>
-                  </div>
-                )}
+        <Divider style={{ margin: "20px 0 20px 0" }} />
+        {/* Блок "Диспетчер объекта" в самом конце */}
+        <Accordion style={{ borderRadius: "20px", margin: 0, width: "100%" }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel-dispatcher-content"
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+                Диспетчер объекта
               </div>
-            );
-          })}
-        </div>
-
-        <div className="form-field-group">
-          <Box display={"flex"} style={{ alignItems: "center" }}>
-            <p className="form-field-group-title">Поиск по точке</p>
-            <Switch
-              value={byPoint}
-              onChange={(_, newValue) => {
-                setByPoint(newValue);
-              }}
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails>
+            {/* Autocomplete с чекбоксами */}
+            <Autocomplete
+              multiple
+              options={["Иванов", "Петров", "Сидоров", "Смирнов"]}
+              disableCloseOnSelect
+              getOptionLabel={(option) => option}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                  {option}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Выберите диспетчера"
+                  placeholder="Диспетчер"
+                />
+              )}
+              sx={{ width: "100%" }}
             />
-          </Box>
-          {byPoint && (
-            <Box>
-              Координаты точки:
-              <Box>
-                <p className="by-point-coords">
-                  <span style={{ fontWeight: "600", color: "#2196F3" }}>
-                    [lng]
-                  </span>{" "}
-                  {coordinatesPoint.lng}
-                </p>
-                <p className="by-point-coords">
-                  <span style={{ fontWeight: "600", color: "#2196F3" }}>
-                    [lat]
-                  </span>{" "}
-                  {coordinatesPoint.lat}
-                </p>
-              </Box>
-              Радиус, м:
-              <Slider
-                aria-label="range"
-                defaultValue={5}
-                valueLabelDisplay={range}
-                shiftStep={1}
-                step={100}
-                min={0}
-                max={10000}
-                onChange={(_, v) => setRange(v)}
-              />
-            </Box>
-          )}
-        </div>
-
-        <div className="form-button-container">
-          <Button variant="contained" className="form-button" type="submit">
-            Найти участки
-            <Box sx={{ mb: 2 }}>
-              <div style={{ marginBottom: 8 }}>Выберите период:</div>
-              <Stack direction="row" spacing={2}>
-                {periodOptions.map((opt) => (
-                  <Button
-                    key={opt.value}
-                    variant={
-                      periodType === opt.value ? "contained" : "outlined"
-                    }
-                    onClick={() => setPeriodType(opt.value)}
-                  >
-                    {opt.label}
-                  </Button>
-                ))}
-              </Stack>
-            </Box>
-            <div style={{ marginBottom: 8 }}>Диапазон:</div>
-            <Slider
-              value={dateRange}
-              onChange={(_, v) => setDateRange(v)}
-              valueLabelDisplay="auto"
-              min={getSliderConfig().min}
-              max={getSliderConfig().max}
-              step={getSliderConfig().step}
-              marks={getSliderConfig().marks}
-            />
-            <div style={{ marginTop: 16 }}>Радиус, м:</div>
-            <Slider
-              aria-label="range"
-              defaultValue={5}
-              valueLabelDisplay={range}
-              shiftStep={1}
-              step={100}
-              min={0}
-              max={10000}
-              onChange={(_, v) => setRange(v)}
-            />
-          </Button>
-        </div>
-        {/* <button class="form-button" type="submit">Submit</button> */}
-      </Box>
+          </AccordionDetails>
+        </Accordion>
+        <Divider style={{ margin: "20px 0 20px 0" }} />
+      </form>
     </React.Fragment>
   );
 
