@@ -545,7 +545,7 @@ function Filters({
             >
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
+                aria-controls="panel-id-content"
               >
                 <Stack
                   direction="row"
@@ -746,6 +746,42 @@ function Filters({
           </AccordionDetails>
         </Accordion>
         <Divider style={{ margin: "20px 0 20px 0" }} />
+        {/* Новый блок "Адрес" по аналогии с "ID объекта" */}
+        <Accordion
+          style={{
+            borderRadius: "20px",
+            margin: 0,
+            width: "100%",
+          }}
+          disabled={true}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel-address-content"
+            sx={{
+              "& .MuiAccordionSummary-content": {
+                marginLeft: "10px",
+              },
+            }}
+          >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
+                Адрес
+              </div>
+            </Stack>
+          </AccordionSummary>
+          <AccordionDetails>
+            <AddressesField
+              value={formik.values.addresses}
+              onChange={(_, newValue) =>
+                formik.setFieldValue(FieldNames.addresses, newValue)
+              }
+              loading={addresses.loading}
+              addresses={addressesData.map}
+              options={addressesData.options}
+            />
+          </AccordionDetails>
+        </Accordion>
       </form>
     </React.Fragment>
   );
