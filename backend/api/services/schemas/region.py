@@ -9,7 +9,6 @@ from api.services.schemas.base import (
 
 
 class Itp(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
-    name: str
     district: str
     region: str
     dispatcher: str
@@ -20,7 +19,6 @@ class Itp(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
     def from_orm_model(cls, orm_model: models.Itp) -> "Itp":
         coords = to_shape(orm_model.geometry)
         return cls(
-            name=orm_model.name,
             district=orm_model.district,
             region=orm_model.region,
             dispatcher=orm_model.dispatcher,
@@ -36,22 +34,29 @@ class Mkd(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
     district: str
     region: str
     street: str
+    index: str
     house_number: str
+    residents_amount: int
+    floors_amount: int
     latitude: float
     longitude: float
 
     @classmethod
     def from_orm_model(cls, orm_model: models.Mkd) -> "Mkd":
         coords = to_shape(orm_model.geometry)
-        return cls.model_validate(
-            {
-                "district": orm_model.district,
-                "region": orm_model.region,
-                "street": orm_model.street,
-                "house_number": orm_model.house_number,
-                "latitude": coords.y,
-                "longitude": coords.x,
-            }
+        return cls(
+            district=orm_model.district,
+            region=orm_model.region,
+            street=orm_model.street,
+            index=orm_model.index,
+            house_number=orm_model.house_number,
+            residents_amount=orm_model.residents_amount,
+            floors_amount=orm_model.floors_amount,
+            latitude=coords.y,
+            longitude=coords.x,
+            deleted=orm_model.deleted,
+            created_at=orm_model.created_at,
+            id=orm_model.id,
         )
 
 

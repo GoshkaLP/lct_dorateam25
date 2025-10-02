@@ -1,3 +1,5 @@
+from pydantic import BaseModel, Field
+
 from api.choices import ObjectStatus
 from api.routes.schemas.base import (
     BaseApiSchema,
@@ -5,30 +7,28 @@ from api.routes.schemas.base import (
 )
 from api.services.schemas import region as service_schemas
 
-# class Admission(BaseApiSchema[service_schemas.Admission], IdApiSchemaMixin):
-#     name: str
-#     surname: str
-#     telegram: str
-#     course: str
-#     university: str
-#     type: AdmissionType
-#     status: AdmissionStatus = AdmissionStatus.WAITING_PAYMENT
-
 
 class Itp(BaseApiSchema[service_schemas.Itp], IdApiSchemaMixin):
-    name: str
     district: str
     region: str
     dispatcher: str
     latitude: float
     longitude: float
+    status: ObjectStatus
+
+
+class ItpFilter(BaseModel):
+    value: str
 
 
 class Mkd(BaseApiSchema[service_schemas.Mkd], IdApiSchemaMixin):
     district: str
     region: str
     street: str
+    index: str
     house_number: str
+    residents_amount: int
+    floors_amount: int
     latitude: float
     longitude: float
 
@@ -44,8 +44,9 @@ class ItpMkd(BaseApiSchema[service_schemas.ItpMkd], IdApiSchemaMixin):
     confidence_interval_feature_2: float
 
 
-# class AdmissionFilters(BaseModel):
-#     id__eq: str | None = Field(None, alias="id")
-#     name__ilike: str | None = Field(None, alias="name")
-#     surname__ilike: str | None = Field(None, alias="surname")
-#     status__eq: AdmissionStatus | None = Field(None, alias="status")
+class ItpFilters(BaseModel):
+    id: str | None = Field(None, serialization_alias="id__eq")
+    district: list[str] | None = Field(None, serialization_alias="district__in")
+    region: list[str] | None = Field(None, serialization_alias="region__in")
+    dispatcher: list[str] | None = Field(None, serialization_alias="dispatcher__in")
+    status: list[str] | None = Field(None)

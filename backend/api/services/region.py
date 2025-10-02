@@ -9,6 +9,15 @@ class ITPService(BaseService[models.Itp, schemas.Itp, ITPRepo]):
     service_schema = schemas.Itp
     repo = ITPRepo
 
+    def get_districts(self) -> list[str]:
+        return self.repo(session=self.session).get_districts()
+
+    def get_regions(self) -> list[str]:
+        return self.repo(session=self.session).get_regions()
+
+    def get_dispatchers(self) -> list[str]:
+        return self.repo(session=self.session).get_dispatchers()
+
 
 class MKDService(BaseService[models.Mkd, schemas.Mkd, MKDRepo]):
     model = models.Mkd

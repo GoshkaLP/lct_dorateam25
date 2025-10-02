@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class ObjectStatus(str, Enum):
-    ORANGE = "Оранжевы"
+    ORANGE = "Оранжевый"
     YELLOW = "Желтый"
     GREEN = "Зеленый"
     UNKNOWN = "Неизвестно"

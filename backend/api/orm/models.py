@@ -6,7 +6,6 @@ from api.orm.base import Base
 
 
 class Itp(Base):
-    name = Column(Text, nullable=False)
     district = Column(Text, nullable=False, doc="Округ")
     region = Column(Text, nullable=False, doc="Район")
     dispatcher = Column(Text, nullable=False)
@@ -14,10 +13,13 @@ class Itp(Base):
 
 
 class Mkd(Base):
-    district = Column(Text, nullable=False)
+    district = Column(Text, nullable=False, doc="Округ")
     region = Column(Text, nullable=False, doc="Район")
     street = Column(Text, nullable=False)
+    index = Column(Text, nullable=False)
     house_number = Column(Text, nullable=False)
+    residents_amount = Column(Integer, nullable=False)
+    floors_amount = Column(Integer, nullable=False)
     geometry = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
 
 

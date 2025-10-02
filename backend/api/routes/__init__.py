@@ -1,5 +1,7 @@
-from api.routes import region
+from api.routes import itp, itp_fitlers, mkd
 
 routers = [
-    region.router,
+    itp.router,
+    itp_fitlers.router,
+    mkd.router,
 ]
