@@ -194,3 +194,9 @@ cython_debug/
 
 .DS_Store
 fbbapp.sql
+node_modules
+.env
+.env.local
+.env.development
+.env.production
+**/t3.md

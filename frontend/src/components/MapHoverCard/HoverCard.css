@@ -1,0 +1,124 @@
+.leaflet-tooltip {
+    border: 0px;
+    box-shadow: none;
+    display: block;
+    border-radius: 26px;
+    max-width: 367px;
+    border: 0.5px solid #C4C4C4;
+    font-family: 'Nunito';
+    padding: 15px 20px;
+}
+
+.leaflet-tooltip h1 { font-size: 16px; font-weight: 600; }
+.leaflet-tooltip p { font-size: 14px; font-weight: 400; }
+.address {
+    white-space: normal;
+}
+
+.intersections {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: -25px;
+}
+
+.intersections img {
+    width: 14px;
+    height: 10px;
+}
+
+.address {
+    white-space: normal;
+}
+
+.header_buttons {
+    gap: 10px;
+    max-width: 92px;
+    max-height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.header_buttons img {
+    cursor: pointer;
+}
+
+p.address {
+    color: #9CA3AF;
+    margin-top: -10px;
+}
+
+.first_row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.second_row {
+    margin-top: -25px;
+}
+
+.square_block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.square_block h1, .intersections_block h1, .footer_block > h1 {
+    font-size: 14px;
+    line-height: calc(19 / 14);
+}
+
+.intersections_block h1 {
+    padding-bottom: 6px;
+}
+
+.intersections_block {
+    margin-top: -10px;
+}
+
+.footer_block h1 {
+    padding-top: 6px;
+}
+.comments_block {
+    margin-top: -10px;
+}
+.circle {
+    background-color: #0D4CD3;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.circle p {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1;
+    color: #FFF;
+}
+.flexbox {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+    padding: 0 !important;
+}
+.comment_title {
+    height: 34px;
+    margin-top: -5px;
+}
+.comment_title h1 {
+    font-size: 11px;
+    line-height: calc(15 / 11);
+    margin: 0 !important;
+}
+.comment_title p {
+    font-size: 11px;
+    line-height: calc(15 / 11);
+    margin: 0 !important; 
+}
+p.comment_body {
+    line-height: calc(19 / 11);
+}
