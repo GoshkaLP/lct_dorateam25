@@ -1,5 +1,5 @@
 // Classes used by Leaflet to position controls
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   Rectangle,
@@ -134,13 +134,57 @@ function ReactControlExample({
   selectedCrossingFilters,
   filterNames,
 }) {
-  // const { setRegions } = useData();
-  // Fetch regions data from API
-  const itpData = useFetch("http://5.129.195.176:8080/api/region/itp");
+  const { itpFilters } = useData();
+  // Fetch MKD data from API
   const mkdData = useFetch("http://5.129.195.176:8080/api/region/mkd");
 
-  console.log(itpData.data);
-  console.log(mkdData.data);
+  // Функция для загрузки ITP данных с фильтрами
+  const fetchITPData = async (filters) => {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      // Добавляем только непустые параметры
+      if (filters.id) queryParams.append('id', filters.id);
+      if (filters.district) queryParams.append('district', filters.district);
+      if (filters.region) queryParams.append('region', filters.region);
+      if (filters.dispatcher) queryParams.append('dispatcher', filters.dispatcher);
+      if (filters.status && filters.status.length > 0) {
+        filters.status.forEach(status => queryParams.append('status', status));
+      }
+
+      const url = `http://5.129.195.176:8080/api/region/itp?${queryParams.toString()}`;
+      console.log('Fetching ITP data with URL:', url);
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const data = await response.json();
+      console.log('ITP data received:', data);
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching ITP data:', error);
+      return [];
+    }
+  };
+
+  // Состояние для ITP данных
+  const [itpData, setItpData] = useState({ data: [], loading: false, error: null });
+
+  // Эффект для загрузки ITP данных при изменении фильтров
+  useEffect(() => {
+    if (Object.keys(itpFilters).length > 0) {
+      setItpData(prev => ({ ...prev, loading: true }));
+      fetchITPData(itpFilters).then(data => {
+        setItpData({ data, loading: false, error: null });
+      });
+    }
+  }, [itpFilters]);
+
+  console.log('ITP data:', itpData.data);
+  console.log('MKD data:', mkdData.data);
   // setRegions(regions);
   const dataKey = useForceUpdateGeoJson(data);
   // Removed unused state variables
