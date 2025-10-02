@@ -102,6 +102,12 @@ const Main = () => {
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"
             id="panel1-header"
+            style={{
+              minHeight: 50,
+              height: 50,
+              display: "flex",
+              alignItems: "center",
+            }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <div style={{ textDecoration: "semibold", fontWeight: "700" }}>
@@ -137,6 +143,12 @@ const Main = () => {
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"
             id="panel1-header"
+            style={{
+              minHeight: 50,
+              height: 50,
+              display: "flex",
+              alignItems: "center",
+            }}
           >
             <Stack
               direction="row"
