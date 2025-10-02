@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["GoshkaLP <rybkin.georgy@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+alembic = "^1.16.5"
+fastapi = {extras = ["all"], version = "^0.118.0"}
+ruff = "^0.13.2"
+sqlalchemy = "^2.0.43"
+geoalchemy2 = {extras = ["shapely"], version = "^0.18.0"}
+psycopg2-binary = "^2.9.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+exclude = [
+  ".git",
+  "alembic",
+]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+fixable = ["ALL"]
