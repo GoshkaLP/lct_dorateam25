@@ -31,17 +31,8 @@ class Mkd(BaseApiSchema[service_schemas.Mkd], IdApiSchemaMixin):
     floors_amount: int
     latitude: float
     longitude: float
-
-
-class ItpMkd(BaseApiSchema[service_schemas.ItpMkd], IdApiSchemaMixin):
-    id_itp: str
-    id_mkd: str
-    status_itp: ObjectStatus
-    status_mkd: ObjectStatus
-    season: str
-    week_number: int
-    confidence_interval_feature_1: float
-    confidence_interval_feature_2: float
+    status: ObjectStatus
+    itp_id: str
 
 
 class ItpFilters(BaseModel):
@@ -49,4 +40,15 @@ class ItpFilters(BaseModel):
     district: list[str] | None = Field(None, serialization_alias="district__in")
     region: list[str] | None = Field(None, serialization_alias="region__in")
     dispatcher: list[str] | None = Field(None, serialization_alias="dispatcher__in")
-    status: list[str] | None = Field(None)
+    status: list[str] | None = Field(None, serialization_alias="status__in")
+
+
+class ItpIdFilter(BaseModel):
+    itp_id: list[str] | None = Field(None, serialization_alias="itp_id__in")
+
+
+class Lines(BaseApiSchema[service_schemas.Lines], IdApiSchemaMixin):
+    status: ObjectStatus
+    itp_id: str
+    layout_index: int
+    coords: list[list[float]]

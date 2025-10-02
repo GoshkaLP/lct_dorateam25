@@ -1,4 +1,6 @@
-from fastapi import APIRouter, status
+from typing import Annotated
+
+from fastapi import APIRouter, Query, status
 
 from api.orm.session import get_session
 from api.routes.schemas import region as api_schemas
@@ -13,9 +15,9 @@ router = APIRouter(prefix="/api/region", tags=["mkd"])
     status_code=status.HTTP_200_OK,
     summary="Get MKD",
 )
-def get_mkd():
+def get_mkd(filters: Annotated[api_schemas.ItpIdFilter, Query()]):
     with get_session() as session:
         result = MKDService(session).get_resources(
-            deleted=False,
+            deleted=False, **filters.model_dump(exclude_none=True, by_alias=True)
         )
         return [api_schemas.Mkd.from_service_schema(row) for row in result]

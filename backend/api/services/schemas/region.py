@@ -14,6 +14,7 @@ class Itp(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
     dispatcher: str
     latitude: float
     longitude: float
+    status: ObjectStatus
 
     @classmethod
     def from_orm_model(cls, orm_model: models.Itp) -> "Itp":
@@ -27,6 +28,7 @@ class Itp(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
             deleted=orm_model.deleted,
             created_at=orm_model.created_at,
             id=orm_model.id,
+            status=orm_model.status,
         )
 
 
@@ -40,6 +42,8 @@ class Mkd(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
     floors_amount: int
     latitude: float
     longitude: float
+    itp_id: str
+    status: ObjectStatus
 
     @classmethod
     def from_orm_model(cls, orm_model: models.Mkd) -> "Mkd":
@@ -57,15 +61,26 @@ class Mkd(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
             deleted=orm_model.deleted,
             created_at=orm_model.created_at,
             id=orm_model.id,
+            itp_id=orm_model.itp_id,
+            status=orm_model.status,
         )
 
 
-class ItpMkd(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
-    id_itp: str
-    id_mkd: str
-    status_itp: ObjectStatus
-    status_mkd: ObjectStatus
-    season: str
-    week_number: int
-    confidence_interval_feature_1: float
-    confidence_interval_feature_2: float
+class Lines(BaseServiceSchema, IdCreatedDeletedServiceSchemaMixin):
+    itp_id: str
+    coords: list[list[float]]
+    status: ObjectStatus
+    layout_index: int
+
+    @classmethod
+    def from_orm_model(cls, orm_model: models.Lines) -> "Lines":
+        line = to_shape(orm_model.geometry)
+        return cls(
+            coords=list(line.coords),
+            layout_index=orm_model.layout_index,
+            deleted=orm_model.deleted,
+            created_at=orm_model.created_at,
+            id=orm_model.id,
+            itp_id=orm_model.itp_id,
+            status=orm_model.status,
+        )

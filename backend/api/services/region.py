@@ -1,5 +1,5 @@
 from api.orm import models
-from api.repo.region import ITPMKDRepo, ITPRepo, MKDRepo
+from api.repo.region import ITPRepo, LinesRepo, MKDRepo
 from api.services.base import BaseService
 from api.services.schemas import region as schemas
 
@@ -25,7 +25,7 @@ class MKDService(BaseService[models.Mkd, schemas.Mkd, MKDRepo]):
     repo = MKDRepo
 
 
-class ITPMKDService(BaseService[models.ItpMkd, schemas.ItpMkd, ITPMKDRepo]):
-    model = models.ItpMkd
-    service_schema = schemas.ItpMkd
-    repo = ITPMKDRepo
+class LinesService(BaseService[models.Lines, schemas.Lines, LinesRepo]):
+    model = models.Lines
+    service_schema = schemas.Lines
+    repo = LinesRepo

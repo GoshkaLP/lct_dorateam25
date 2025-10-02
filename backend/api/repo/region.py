@@ -19,5 +19,5 @@ class MKDRepo(BaseRepo[models.Mkd]):
     model = models.Mkd
 
 
-class ITPMKDRepo(BaseRepo[models.ItpMkd]):
-    model = models.ItpMkd
+class LinesRepo(BaseRepo[models.Lines]):
+    model = models.Lines
