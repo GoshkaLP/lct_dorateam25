@@ -19,7 +19,7 @@ import { useData } from "../../components/Filters/components/DataContext/DataCon
 
 const Main = () => {
   const navigate = useNavigate();
-  const { regions } = useData();
+  const { regions, itpData } = useData();
   const handleDownloadAnalytics = async () => {
     try {
       // Создаем текстовое содержимое для файла
@@ -71,11 +71,7 @@ const Main = () => {
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
-  useEffect(() => {
-    if (regions?.data && regions.data.length > 0) {
-      console.log("Main: regions loaded, count:", regions.data.length);
-    }
-  }, [regions?.data?.length]);
+
   return (
     <main style={{ position: "relative" }}>
       <MainSection
@@ -117,14 +113,9 @@ const Main = () => {
               </div>
               <Chip
                 label={
-                  regions?.loading 
+                  itpData?.loading 
                     ? "Загрузка..." 
-                    : `${regions?.data?.filter(region => 
-                        region.latitude && 
-                        region.longitude && 
-                        !isNaN(region.latitude) && 
-                        !isNaN(region.longitude)
-                      ).length || 0} объектов`
+                    : `${itpData?.data?.length || 0} объектов`
                 }
                 color="primary"
                 style={{ backgroundColor: "#0D4CD3" }}
@@ -136,6 +127,7 @@ const Main = () => {
               coordinatesPoint={coordinatesPoint}
               setSelectedCrossingFilters={setSelectedCrossingFilters}
               setFilterNames={setFilterNames}
+              expanded={expanded === "panel1"}
             />
           </AccordionDetails>
         </Accordion>

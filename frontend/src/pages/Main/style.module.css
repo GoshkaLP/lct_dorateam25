@@ -3,9 +3,26 @@
   flex-direction: column;
   z-index: 1000;
   top: 90px;
-  right: 60px;
+  right: 20px;
   width: 370px;
-  height: 80vh;
+  max-height: 80vh;
+}
+
+/* Мобильная версия */
+@media (max-width: 768px) {
+  .right_sidebar {
+    width: 360px;
+    right: 10px;
+    top: 100px;
+  }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 480px) {
+  .right_sidebar {
+    width: calc(100vw - 65px);
+    right: 10px;
+  }
 }
 
 .accordion :global(.MuiAccordion-region)::before {

@@ -1,4 +1,4 @@
-.mkd-popup {
+.itp-popup {
   min-width: 280px;
   max-width: 320px;
   background: white;
@@ -7,7 +7,7 @@
   font-family: 'Montserrat', sans-serif;
 }
 
-.mkd-popup-header {
+.itp-popup-header {
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   color: white;
   padding: 16px;
@@ -16,38 +16,38 @@
   align-items: center;
 }
 
-/* Градиенты для разных статусов MKD */
-.mkd-popup-header.status-зеленый {
+/* Градиенты для разных статусов ITP */
+.itp-popup-header.status-зеленый {
   background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
 }
 
-.mkd-popup-header.status-оранжевый {
+.itp-popup-header.status-оранжевый {
   background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);
 }
 
-.mkd-popup-header.status-желтый {
+.itp-popup-header.status-желтый {
   background: linear-gradient(135deg, #F6C84E 0%, #ffeb3b 100%);
 }
 
-.mkd-popup-header.status-красный {
+.itp-popup-header.status-красный {
   background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
 }
 
-.mkd-popup-header.status-синий {
+.itp-popup-header.status-синий {
   background: linear-gradient(135deg, #007bff 0%, #4facfe 100%);
 }
 
-.mkd-popup-header.status-неизвестно {
+.itp-popup-header.status-неизвестно {
   background: linear-gradient(135deg, rgb(108, 117, 125) 0%, #6c757d 100%);
 }
 
-.mkd-popup-title {
+.itp-popup-title {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
 }
 
-.mkd-popup-id {
+.itp-popup-id {
   font-size: 12px;
   background: rgba(255, 255, 255, 0.2);
   padding: 4px 8px;
@@ -55,11 +55,11 @@
   font-weight: 500;
 }
 
-.mkd-popup-content {
+.itp-popup-content {
   padding: 16px;
 }
 
-.mkd-info-row {
+.itp-info-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -68,12 +68,12 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
-.mkd-info-row:last-of-type {
+.itp-info-row:last-of-type {
   border-bottom: none;
   margin-bottom: 16px;
 }
 
-.mkd-label {
+.itp-label {
   font-size: 13px;
   color: #666;
   font-weight: 500;
@@ -81,7 +81,7 @@
   margin-right: 12px;
 }
 
-.mkd-value {
+.itp-value {
   font-size: 13px;
   color: #333;
   font-weight: 600;
@@ -89,84 +89,30 @@
   word-break: break-word;
 }
 
-.mkd-stats {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.mkd-stat-item {
-  flex: 1;
-  text-align: center;
-}
-
-.mkd-stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #4facfe;
-  margin-bottom: 4px;
-}
-
-/* Цвета статистики в зависимости от статуса */
-.mkd-popup.status-зеленый .mkd-stat-value {
-  color: #28a745;
-}
-
-.mkd-popup.status-оранжевый .mkd-stat-value {
-  color: #fd7e14;
-}
-
-.mkd-popup.status-желтый .mkd-stat-value {
-  color: #F6C84E;
-}
-
-.mkd-popup.status-красный .mkd-stat-value {
-  color: #dc3545;
-}
-
-.mkd-popup.status-синий .mkd-stat-value {
-  color: #007bff;
-}
-
-.mkd-popup.status-неизвестно .mkd-stat-value {
-  color: rgb(108, 117, 125);
-}
-
-.mkd-stat-label {
-  font-size: 11px;
-  color: #666;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.mkd-coordinates {
+.itp-coordinates {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 12px;
 }
 
-.mkd-coordinate {
+.itp-coordinate {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 6px;
 }
 
-.mkd-coordinate:last-child {
+.itp-coordinate:last-child {
   margin-bottom: 0;
 }
 
-.mkd-coord-label {
+.itp-coord-label {
   font-size: 12px;
   color: #666;
   font-weight: 500;
 }
 
-.mkd-coord-value {
+.itp-coord-value {
   font-size: 12px;
   color: #333;
   font-weight: 600;
@@ -177,7 +123,7 @@
 }
 
 /* Анимация появления */
-.mkd-popup {
+.itp-popup {
   animation: slideIn 0.3s ease-out;
 }
 
@@ -194,29 +140,20 @@
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  .mkd-popup {
+  .itp-popup {
     min-width: 260px;
     max-width: 300px;
   }
   
-  .mkd-popup-header {
+  .itp-popup-header {
     padding: 14px;
   }
   
-  .mkd-popup-title {
+  .itp-popup-title {
     font-size: 16px;
   }
   
-  .mkd-popup-content {
+  .itp-popup-content {
     padding: 14px;
-  }
-  
-  .mkd-stats {
-    gap: 12px;
-    padding: 10px;
-  }
-  
-  .mkd-stat-value {
-    font-size: 20px;
   }
 }

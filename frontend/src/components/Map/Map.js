@@ -1,5 +1,5 @@
 // Classes used by Leaflet to position controls
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   Rectangle,
@@ -11,6 +11,7 @@ import {
   Popup,
   useMapEvents,
   FeatureGroup,
+  Polyline,
 } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 
@@ -27,6 +28,8 @@ import MarkerClusterGroup from "../MarkerClusterGroup/MarkerClusterGroup";
 import { useData } from "../Filters/components/DataContext/DataContext";
 import TabBar from "../TabBar";
 import MKDPopup from "../MKDPopup";
+import ITPPopup from "../ITPPopup";
+import LinePopup from "../LinePopup";
 
 const POSITION_CLASSES = {
   bottomleft: "leaflet-bottom leaflet-left",
@@ -40,6 +43,24 @@ const STATUS_COLORS = {
   Зеленый: "#28a745", // Green
   Оранжевый: "#fd7e14", // Orange
   Желтый: "#F6C84E", // Yellow (matching original ITP_yellow)
+};
+
+// Status color mapping for lines
+const LINE_STATUS_COLORS = {
+  Зеленый: "#28a745", // Green
+  Оранжевый: "#fd7e14", // Orange
+  Желтый: "#F6C84E", // Yellow
+  Красный: "#dc3545", // Red
+  Синий: "#007bff", // Blue
+};
+
+// Status color mapping for MKD
+const MKD_STATUS_COLORS = {
+  Зеленый: "#28a745", // Green
+  Оранжевый: "#fd7e14", // Orange
+  Желтый: "#F6C84E", // Yellow
+  Красный: "#dc3545", // Red
+  Неизвестно: "rgb(108, 117, 125)", // Blue
 };
 
 // Removed hardcoded points - now using dynamic regions data
@@ -134,21 +155,139 @@ function ReactControlExample({
   selectedCrossingFilters,
   filterNames,
 }) {
-  // const { setRegions } = useData();
-  // Fetch regions data from API
-  const itpData = useFetch("http://5.129.195.176:8080/api/region/itp");
-  const mkdData = useFetch("http://5.129.195.176:8080/api/region/mkd");
+  const { itpFilters, itpData, setItpData, mkdData, setMkdData, linesData, setLinesData, rectangle, setRectangle, processItpDataWithWaterConsumption } = useData();
 
-  console.log(itpData.data);
-  console.log(mkdData.data);
+  // Функция для загрузки ITP данных с фильтрами
+  const fetchITPData = useCallback(async (filters) => {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      // Добавляем только непустые параметры
+      if (filters.id && Array.isArray(filters.id) && filters.id.length > 0) {
+        // Добавляем каждый ID как отдельный параметр
+        filters.id.forEach(id => queryParams.append('id', id));
+      }
+      if (filters.district) queryParams.append('district', filters.district);
+      if (filters.region) queryParams.append('region', filters.region);
+      if (filters.dispatcher) queryParams.append('dispatcher', filters.dispatcher);
+      if (filters.status && filters.status.length > 0) {
+        filters.status.forEach(status => queryParams.append('status', status));
+      }
+
+      const url = `https://dora.team/api/region/itp?${queryParams.toString()}`;
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const data = await response.json();
+      
+      return data;
+    } catch (error) {
+      console.error('Error fetching ITP data:', error);
+      return [];
+    }
+  }, []);
+
+  // Функция для загрузки MKD данных
+  const fetchMKDData = useCallback(async (itpIds = []) => {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      // Добавляем все ID из ITP данных как параметры
+      if (Array.isArray(itpIds) && itpIds.length > 0) {
+        itpIds.forEach(id => queryParams.append('itp_id', id));
+      }
+
+      const url = `https://dora.team/api/region/mkd?${queryParams.toString()}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching MKD data:', error);
+      return [];
+    }
+  }, []);
+
+  // Функция для загрузки Lines данных
+  const fetchLinesData = useCallback(async (itpIds = []) => {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      // Добавляем все ID из ITP данных как параметры
+      if (Array.isArray(itpIds) && itpIds.length > 0) {
+        itpIds.forEach(id => queryParams.append('itp_id', id));
+      }
+
+      const url = `https://dora.team/api/region/lines?${queryParams.toString()}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching Lines data:', error);
+      return [];
+    }
+  }, []);
+
+  // Эффект для загрузки ITP данных при изменении фильтров
+  useEffect(() => {
+    const loadData = async () => {
+      setItpData(prev => ({ ...prev, loading: true }));
+      try {
+        const data = await fetchITPData(itpFilters);
+        // Используем функцию обогащения данными о потреблении воды
+        processItpDataWithWaterConsumption(data);
+        
+        // После успешной загрузки ITP данных загружаем MKD и Lines данные
+        try {
+          // Извлекаем ID из ITP данных
+          const itpIds = Array.isArray(data) ? data.map(item => item.id).filter(id => id !== undefined && id !== null) : [];
+          
+          const [mkdDataResult, linesDataResult] = await Promise.all([
+            fetchMKDData(itpIds),
+            fetchLinesData(itpIds)
+          ]);
+          
+          setMkdData({ data: mkdDataResult, loading: false, error: null });
+          setLinesData({ data: linesDataResult, loading: false, error: null });
+        } catch (error) {
+          console.error('Error loading MKD or Lines data:', error);
+          setMkdData(prev => ({ ...prev, loading: false, error: error.message }));
+          setLinesData(prev => ({ ...prev, loading: false, error: error.message }));
+        }
+      } catch (error) {
+        setItpData({ data: [], loading: false, error: error.message });
+      }
+    };
+    
+    loadData();
+  }, [itpFilters, fetchITPData, fetchMKDData, fetchLinesData]);
+
   // setRegions(regions);
   const dataKey = useForceUpdateGeoJson(data);
   // Removed unused state variables
-  const [rectangle, setRectangle] = useState(null);
   const [activeLayers, setActiveLayers] = useState({
     itp: true,
     mkd: false,
   });
+  const [selectedLineId, setSelectedLineId] = useState(null);
+
+  // Сортируем данные линий по layout_index от большей цифры к меньшей
+  const sortedLinesData = useMemo(() => {
+    if (!linesData.data || !Array.isArray(linesData.data)) {
+      return [];
+    }
+    return [...linesData.data].sort((a, b) => (a.layout_index || 0) - (b.layout_index || 0));
+  }, [linesData.data]);
 
   const handleLayerToggle = (layer) => {
     setActiveLayers((prev) => ({
@@ -186,13 +325,15 @@ function ReactControlExample({
     });
   };
 
-  // Function to create house icons for MKD
-  const createHouseIcon = () => {
+  // Function to create house icons for MKD with status-based coloring
+  const createHouseIcon = (status) => {
+    const color = MKD_STATUS_COLORS[status] || "#4facfe"; // Default blue for unknown status
+
     const svgIcon = `
       <svg width="32" height="42" viewBox="0 0 50 65" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 7C0 4.79086 1.79086 3 4 3H46C48.2091 3 50 4.79086 50 7V53C50 55.2091 48.2091 57 46 57H34.6569C33.596 57 32.5786 57.4214 31.8284 58.1716L27.8284 62.1716C26.2663 63.7337 23.7337 63.7337 22.1716 62.1716L18.1716 58.1716C17.4214 57.4214 16.404 57 15.3431 57H4C1.79086 57 0 55.2091 0 53V7Z" fill="#4facfe"/>
+        <path d="M0 7C0 4.79086 1.79086 3 4 3H46C48.2091 3 50 4.79086 50 7V53C50 55.2091 48.2091 57 46 57H34.6569C33.596 57 32.5786 57.4214 31.8284 58.1716L27.8284 62.1716C26.2663 63.7337 23.7337 63.7337 22.1716 62.1716L18.1716 58.1716C17.4214 57.4214 16.404 57 15.3431 57H4C1.79086 57 0 55.2091 0 53V7Z" fill="${color}"/>
         <path d="M25 15L15 23V40H20V32H30V40H35V23L25 15Z" fill="white"/>
-        <path d="M22 26H28V30H22V26Z" fill="#4facfe"/>
+        <path d="M22 26H28V30H22V26Z" fill="${color}"/>
       </svg>
     `;
 
@@ -230,7 +371,6 @@ function ReactControlExample({
     const { layerType, layer } = e;
     if (layerType === "rectangle") {
       const bounds = layer.getBounds();
-      console.log("Rectangle created with bounds:", bounds);
       setRectangle(bounds);
       // Удаляем исходный прямоугольник, так как мы будем рендерить его через компонент Rectangle
       e.layer.remove();
@@ -241,30 +381,28 @@ function ReactControlExample({
     setRectangle(null);
   };
 
+  const handleLineClick = (lineId) => {
+    setSelectedLineId(selectedLineId === lineId ? null : lineId);
+  };
+
   return (
     <>
       <TabBar activeLayers={activeLayers} onLayerToggle={handleLayerToggle} />
       {rectangle && (
         <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            right: "20px",
-            zIndex: 1000,
-          }}
-        >
+          className="remove-filter-button-container">
           <button
             onClick={handleDeleteRectangle}
             style={{
               padding: "8px 16px",
-              backgroundColor: "#ff4444",
+              backgroundColor: "#EB546F",
               color: "white",
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
             }}
           >
-            Удалить прямоугольник
+            Убрать фильтр
           </button>
         </div>
       )}
@@ -365,24 +503,7 @@ function ReactControlExample({
                 status={region.status}
               >
                 <Popup>
-                  <div>
-                    <h4>{region.region}</h4>
-                    <p>
-                      <strong>Район:</strong> {region.district}
-                    </p>
-                    <p>
-                      <strong>Диспетчер:</strong> {region.dispatcher}
-                    </p>
-                    <p>
-                      <strong>Статус:</strong>{" "}
-                      <span style={{ color: STATUS_COLORS[region.status] }}>
-                        {region.status}
-                      </span>
-                    </p>
-                    <p>
-                      <strong>ID:</strong> {region.id}
-                    </p>
-                  </div>
+                  <ITPPopup itpData={region} />
                 </Popup>
               </Marker>
             ))}
@@ -400,10 +521,25 @@ function ReactControlExample({
             removeOutsideVisibleBounds={true}
             iconCreateFunction={(cluster) => {
               const count = cluster.getChildCount();
+              const markers = cluster.getAllChildMarkers();
+
+              // Determine cluster color based on status distribution
+              const statusCounts = markers.reduce((acc, marker) => {
+                const status = marker.options.status || "unknown";
+                acc[status] = (acc[status] || 0) + 1;
+                return acc;
+              }, {});
+
+              // Get the most common status
+              const dominantStatus = Object.keys(statusCounts).reduce((a, b) =>
+                statusCounts[a] > statusCounts[b] ? a : b
+              );
+
+              const clusterColor = MKD_STATUS_COLORS[dominantStatus] || "#4facfe";
 
               return new L.DivIcon({
                 html: `<div style="
-                  background-color: #4facfe;
+                  background-color: ${clusterColor};
                   border: 3px solid white;
                   border-radius: 50%;
                   width: 40px;
@@ -426,7 +562,8 @@ function ReactControlExample({
               <Marker
                 key={mkd.id}
                 position={[mkd.latitude, mkd.longitude]}
-                icon={createHouseIcon()}
+                icon={createHouseIcon(mkd.status)}
+                status={mkd.status}
               >
                 <Popup>
                   <MKDPopup mkdData={mkd} />
@@ -435,6 +572,45 @@ function ReactControlExample({
             ))}
           </MarkerClusterGroup>
         )}
+
+        {/* Render Lines as polylines */}
+        {activeLayers.itp && activeLayers.mkd && sortedLinesData && sortedLinesData.length > 0 && sortedLinesData.map((line) => {
+          // Проверяем наличие необходимых данных
+          if (!line || !line.coords || line.coords.length < 2) {
+            console.warn('Invalid line data:', line);
+            return null;
+          }
+
+          // Преобразуем координаты в формат [lat, lng]
+          const positions = line.coords.map(coord => [coord.latitude, coord.longitude]);
+          
+          // Получаем цвет на основе статуса
+          const lineColor = LINE_STATUS_COLORS[line.status] || "#6c757d";
+          
+          // Определяем, выбрана ли линия
+          const isSelected = selectedLineId === line.id;
+
+          return (
+            <Polyline
+              key={line.id}
+              positions={positions}
+              pathOptions={{
+                color: lineColor,
+                weight: isSelected ? 8 : 4, // Увеличиваем толщину для выбранной линии
+                opacity: 1,
+                zIndex: line.layout_index, // Выбранная линия поверх остальных
+              }}
+              eventHandlers={{
+                click: () => handleLineClick(line.id),
+              }}
+            >
+              <Popup>
+                <LinePopup lineData={line} isSelected={isSelected} />
+              </Popup>
+            </Polyline>
+          );
+        })}
+
         {rectangle && (
           <Rectangle bounds={rectangle} pathOptions={{ color: "blue" }} />
         )}
@@ -449,3 +625,4 @@ function ReactControlExample({
 }
 
 export default ReactControlExample;
+

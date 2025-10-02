@@ -16,7 +16,6 @@ const TabBar = ({ activeLayers, onLayerToggle }) => {
           </div>
           <span className="tab-label">ИТП</span>
         </button>
-        
         <button
           className={`tab-button ${activeLayers.mkd ? 'active' : ''}`}
           onClick={() => onLayerToggle('mkd')}
@@ -26,6 +25,8 @@ const TabBar = ({ activeLayers, onLayerToggle }) => {
           </div>
           <span className="tab-label">МКД</span>
         </button>
+        
+
       </div>
     </div>
   );

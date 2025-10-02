@@ -2,9 +2,17 @@ import React from 'react';
 import './MKDPopup.css';
 
 const MKDPopup = ({ mkdData }) => {
+  // Функция для получения класса статуса
+  const getStatusClass = (status) => {
+    if (!status) return 'status-неизвестно';
+    return `status-${status.toLowerCase()}`;
+  };
+
+  const statusClass = getStatusClass(mkdData.status);
+
   return (
-    <div className="mkd-popup">
-      <div className="mkd-popup-header">
+    <div className={`mkd-popup ${statusClass}`}>
+      <div className={`mkd-popup-header ${statusClass}`}>
         <h3 className="mkd-popup-title">МКД</h3>
         <div className="mkd-popup-id">ID: {mkdData.id}</div>
       </div>

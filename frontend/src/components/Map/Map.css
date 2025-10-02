@@ -175,3 +175,24 @@
 .marker-cluster-large div {
   background-color: rgba(241, 128, 23, 0.6);
 }
+
+/* Стили для кнопки "Убрать фильтр" */
+.remove-filter-button-container {
+  line-height: 1;
+  position: absolute;
+  bottom: 20px;
+  left: 50vw;
+  z-index: 1000;
+}
+
+/* Убираем margin у содержимого popup'ов */
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+/* Мобильная версия */
+@media (max-width: 768px) {
+  .remove-filter-button-container {
+    bottom: 88px;
+  }
+}
