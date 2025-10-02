@@ -1,5 +1,5 @@
 // Classes used by Leaflet to position controls
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   MapContainer,
   Rectangle,
@@ -25,6 +25,8 @@ import L from "leaflet";
 import useFetch from "../../hooks/useFetch";
 import MarkerClusterGroup from "../MarkerClusterGroup/MarkerClusterGroup";
 import { useData } from "../Filters/components/DataContext/DataContext";
+import TabBar from "../TabBar";
+import MKDPopup from "../MKDPopup";
 
 const POSITION_CLASSES = {
   bottomleft: "leaflet-bottom leaflet-left",
@@ -64,7 +66,7 @@ function MinimapBounds({ parentMap, zoom }) {
   }, [minimap, parentMap, zoom]);
 
   // Listen to events on the parent map
-  const handlers = useMemo(() => ({ move: onChange, zoom: onChange }), []);
+  const handlers = useMemo(() => ({ move: onChange, zoom: onChange }), [onChange]);
   useEventHandlers({ instance: parentMap }, handlers);
 
   return <Rectangle bounds={bounds} pathOptions={BOUNDS_STYLE} />;
@@ -91,7 +93,7 @@ function MinimapControl({ position, zoom }) {
         <MinimapBounds parentMap={parentMap} zoom={mapZoom} />
       </MapContainer>
     ),
-    []
+    [parentMap, mapZoom]
   );
 
   const positionClass =
@@ -129,15 +131,28 @@ function ReactControlExample({
   selectedCrossingFilters,
   filterNames,
 }) {
-  const { setRegions } = useData();
+  // const { setRegions } = useData();
   // Fetch regions data from API
-  const regions = useFetch("http://5.129.195.176:8080/api/region");
+  const itpData = useFetch("http://5.129.195.176:8080/api/region/itp");
+  const mkdData = useFetch("http://5.129.195.176:8080/api/region/mkd");
 
-  console.log(regions.data);
+  console.log(itpData.data);
+  console.log(mkdData.data);
   // setRegions(regions);
   const dataKey = useForceUpdateGeoJson(data);
   // Removed unused state variables
   const [rectangle, setRectangle] = useState(null);
+  const [activeLayers, setActiveLayers] = useState({
+    itp: true,
+    mkd: false
+  });
+
+  const handleLayerToggle = (layer) => {
+    setActiveLayers(prev => ({
+      ...prev,
+      [layer]: !prev[layer]
+    }));
+  };
 
   // Function to create colored marker icons similar to ITP_yellow
   const createColoredIcon = (status) => {
@@ -156,6 +171,25 @@ function ReactControlExample({
       <svg width="32" height="42" viewBox="0 0 50 65" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 7C0 4.79086 1.79086 3 4 3H46C48.2091 3 50 4.79086 50 7V53C50 55.2091 48.2091 57 46 57H34.6569C33.596 57 32.5786 57.4214 31.8284 58.1716L27.8284 62.1716C26.2663 63.7337 23.7337 63.7337 22.1716 62.1716L18.1716 58.1716C17.4214 57.4214 16.404 57 15.3431 57H4C1.79086 57 0 55.2091 0 53V7Z" fill="${color}"/>
         <text x="25" y="35" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="bold">${statusLetter}</text>
+      </svg>
+    `;
+
+    return new L.DivIcon({
+      className: "custom-svg-icon",
+      html: svgIcon,
+      iconSize: [32, 42],
+      iconAnchor: [16, 42],
+      popupAnchor: [0, -42],
+    });
+  };
+
+  // Function to create house icons for MKD
+  const createHouseIcon = () => {
+    const svgIcon = `
+      <svg width="32" height="42" viewBox="0 0 50 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 7C0 4.79086 1.79086 3 4 3H46C48.2091 3 50 4.79086 50 7V53C50 55.2091 48.2091 57 46 57H34.6569C33.596 57 32.5786 57.4214 31.8284 58.1716L27.8284 62.1716C26.2663 63.7337 23.7337 63.7337 22.1716 62.1716L18.1716 58.1716C17.4214 57.4214 16.404 57 15.3431 57H4C1.79086 57 0 55.2091 0 53V7Z" fill="#4facfe"/>
+        <path d="M25 15L15 23V40H20V32H30V40H35V23L25 15Z" fill="white"/>
+        <path d="M22 26H28V30H22V26Z" fill="#4facfe"/>
       </svg>
     `;
 
@@ -206,6 +240,7 @@ function ReactControlExample({
 
   return (
     <>
+      <TabBar activeLayers={activeLayers} onLayerToggle={handleLayerToggle} />
       {rectangle && (
         <div
           style={{
@@ -271,8 +306,8 @@ function ReactControlExample({
         {/* {trains.map((train) => {
                     return <Train key={train.train_index} train={train} onClick={handleTrainClick} onOutsideClick={handleMapClick} />
                 })} */}
-        {/* Render region markers with clustering */}
-        {regions.data && regions.data.length > 0 && (
+        {/* Render ITP markers with clustering */}
+        {activeLayers.itp && itpData.data && itpData.data.length > 0 && (
           <MarkerClusterGroup
             chunkedLoading
             maxClusterRadius={50}
@@ -319,7 +354,7 @@ function ReactControlExample({
               });
             }}
           >
-            {regions.data.map((region) => (
+            {itpData.data.map((region) => (
               <Marker
                 key={region.id}
                 position={[region.latitude, region.longitude]}
@@ -345,6 +380,53 @@ function ReactControlExample({
                       <strong>ID:</strong> {region.id}
                     </p>
                   </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MarkerClusterGroup>
+        )}
+
+        {/* Render MKD markers with clustering */}
+        {activeLayers.mkd && mkdData.data && mkdData.data.length > 0 && (
+          <MarkerClusterGroup
+            chunkedLoading
+            maxClusterRadius={50}
+            spiderfyOnMaxZoom={true}
+            showCoverageOnHover={false}
+            zoomToBoundsOnClick={true}
+            removeOutsideVisibleBounds={true}
+            iconCreateFunction={(cluster) => {
+              const count = cluster.getChildCount();
+
+              return new L.DivIcon({
+                html: `<div style="
+                  background-color: #4facfe;
+                  border: 3px solid white;
+                  border-radius: 50%;
+                  width: 40px;
+                  height: 40px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: white;
+                  font-weight: bold;
+                  font-size: 14px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                ">${count}</div>`,
+                className: "custom-cluster-icon",
+                iconSize: [40, 40],
+                iconAnchor: [20, 20],
+              });
+            }}
+          >
+            {mkdData.data.map((mkd) => (
+              <Marker
+                key={mkd.id}
+                position={[mkd.latitude, mkd.longitude]}
+                icon={createHouseIcon()}
+              >
+                <Popup>
+                  <MKDPopup mkdData={mkd} />
                 </Popup>
               </Marker>
             ))}
